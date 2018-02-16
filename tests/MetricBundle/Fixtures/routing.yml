@@ -1,0 +1,4 @@
+_lamoda_metrics:
+  resource: .
+  type: lamoda_metrics
+  prefix: /metrics/

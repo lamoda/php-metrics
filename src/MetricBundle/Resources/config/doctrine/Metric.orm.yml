@@ -1,0 +1,6 @@
+Lamoda\MetricBundle\Entity\Metric:
+  type: mappedSuperclass
+  id:
+    key: { type: string }
+  fields:
+    value: { type: float }

@@ -1,0 +1,59 @@
+lamoda_metrics:
+    metrics:
+        sources:
+
+            # Prototype
+            name:
+
+                # Type of the source
+                type:                 service # One of "doctrine"; "service"; "composite"
+
+                # Source service identifier
+                id:                   null
+
+                # Entity class
+                entity:               Lamoda\MetricResponder\MetricInterface
+
+                # Metric services
+                metrics:              []
+    groups:
+        sources:
+
+            # Prototype
+            name:
+
+                # Type of the source
+                type:                 service # One of "doctrine"; "service"; "merging"
+
+                # Service identifier
+                id:                   null
+
+                # Entity class
+                entity:               Lamoda\MetricResponder\MetricGroupInterface
+
+                # Group services
+                groups:               []
+        custom:
+
+            # Prototype
+            name:
+
+                # Group tags
+                tags:                 []
+
+                # Metric source names or service ids
+                metric_sources:       []
+
+                # Additional metric services for this group (also populated with tag)
+                metric_services:      []
+    responders:
+        telegraf:
+            enabled:              false
+
+            # Responder route path
+            path:                 /telegraf
+
+            # ResponseFactory service ID
+            formatter:            lamoda_metrics.formatter.telegraf
+            sources:              []
+            groups:               []

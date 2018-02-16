@@ -1,0 +1,18 @@
+services:
+  lamoda_metrics.metric_storage:
+    class: Lamoda\MetricStorage\DelegatingMetricStorage
+    public: false
+
+  Lamoda\MetricStorage\AdjustableMetricStorageInterface:
+    alias: lamoda_metrics.metric_storage
+
+  lamoda_metrics.response_factory.telegraf:
+    class: Lamoda\MetricResponder\ResponseFactory\TelegrafResponseFactory
+
+  lamoda_metrics.response_factory.prometheus:
+    class: Lamoda\MetricResponder\ResponseFactory\PrometheusResponseFactory
+
+  lamoda_metrics.route_loader:
+    class: Lamoda\MetricBundle\Routing\MetricRouteLoader
+    tags:
+    - { name: routing.loader }

@@ -1,0 +1,40 @@
+lamoda_metrics:
+  metrics:
+    sources:
+      my_custom_metric_entity:
+        type: doctrine
+        entity: Lamoda\MetricResponder\Entity\Metric
+      composite:
+        type: composite
+        metrics:
+        - custom_metric
+
+  groups:
+    sources:
+      doctrine_entity_source:
+        type: doctrine
+        entity: Lamoda\MetricResponder\Entity\MetricGroup
+    custom:
+      my_custom_group:
+        tags: {type: custom}
+        metric_sources:
+          - my_custom_metric_entity
+          - composite
+        metric_services:
+          - custom_metric
+      heartbeat:
+        tags: {type: heartbeat}
+
+  responders:
+    telegraf:
+      groups:
+      - my_custom_group
+      sources:
+      - doctrine_entity_source
+    custom_telegraf:
+      formatter: lamoda_metrics.formatter.telegraf
+      path: /custom_telegraf
+      groups:
+      - my_custom_group
+      sources:
+      - doctrine_entity_source

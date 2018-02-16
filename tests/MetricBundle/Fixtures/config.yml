@@ -1,0 +1,97 @@
+parameters:
+  secret: test
+  kernel.project_dir: '%kernel.root_dir%'
+
+framework:
+  secret: '%secret%'
+  test: true
+  router:
+    resource: '%kernel.project_dir%/routing.yml'
+
+services:
+  custom_tagged_metric:
+    class: Lamoda\MetricResponder\MetricImpl\Metric
+    arguments:
+    - "tagged_metric"
+    - 2.0
+    tags:
+    - { name: lamoda_telegraf_metric, group: heartbeat }
+  custom_metric:
+    class: Lamoda\MetricResponder\MetricImpl\Metric
+    arguments:
+    - "custom_metric"
+    - 1.0
+  custom_metric_for_composite:
+    class: Lamoda\MetricResponder\MetricImpl\Metric
+    arguments:
+    - "custom_metric_for_composite"
+    - 2.2
+
+  # Make existing service public:
+  Lamoda\MetricStorage\AdjustableMetricStorageInterface:
+    alias: lamoda_metrics.metric_storage
+    public: true
+
+lamoda_metrics:
+  metrics:
+    sources:
+      my_custom_metric_entity:
+        type: doctrine
+        entity: Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric
+        storage: true
+      composite:
+        type: composite
+        metrics:
+        - custom_metric_for_composite
+
+  groups:
+    sources:
+      doctrine_entity_source:
+        type: doctrine
+        entity: Lamoda\MetricBundle\Tests\Fixtures\Entity\MetricGroup
+    custom:
+      my_custom_group:
+        tags: {type: custom}
+        metric_sources:
+          - my_custom_metric_entity
+          - composite
+        metric_services:
+          - custom_metric
+      heartbeat:
+        tags: {type: heartbeat}
+
+  responders:
+    telegraf:
+      enabled: true
+      groups:
+      - my_custom_group
+      sources:
+      - doctrine_entity_source
+    custom_telegraf:
+      enabled: true
+      response_factory: lamoda_metrics.response_factory.telegraf
+      path: /custom_telegraf
+      groups:
+      - my_custom_group
+      sources:
+      - doctrine_entity_source
+    prometheus:
+      enabled: true
+      prefix: metrics_
+      path: /prometheus
+      groups:
+      - my_custom_group
+      sources:
+      - doctrine_entity_source
+
+
+doctrine:
+  dbal:
+    driver: pdo_sqlite
+    path: "%kernel.cache_dir%/test.db"
+  orm:
+    auto_mapping: true
+    resolve_target_entities:
+      Lamoda\MetricResponder\MetricInterface: Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric
+      Lamoda\MetricResponder\MetricGroupInterface: Lamoda\MetricBundle\Tests\Fixtures\Entity\MetricGroup
+    naming_strategy: doctrine.orm.naming_strategy.underscore
