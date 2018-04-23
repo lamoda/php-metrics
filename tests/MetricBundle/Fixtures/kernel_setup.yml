@@ -1,0 +1,20 @@
+parameters:
+  secret: test
+  kernel.project_dir: '%kernel.root_dir%'
+
+framework:
+  secret: '%secret%'
+  test: true
+  router:
+    resource: '%kernel.project_dir%/routing.yml'
+
+doctrine:
+  dbal:
+    driver: pdo_sqlite
+    memory: true
+  orm:
+    auto_mapping: true
+    resolve_target_entities:
+      Lamoda\MetricResponder\MetricInterface: Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric
+      Lamoda\MetricResponder\MetricGroupInterface: Lamoda\MetricBundle\Tests\Fixtures\Entity\MetricGroup
+    naming_strategy: doctrine.orm.naming_strategy.underscore

@@ -1,8 +1,8 @@
 <?php
 
-namespace Lamoda\MetricBundle\Tests\Fixtures\Entity;
+namespace Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity;
 
-use Lamoda\MetricBundle\Entity\Metric as BaseMetric;
+use Lamoda\Metric\MetricBundle\Entity\Metric as BaseMetric;
 
 class Metric extends BaseMetric
 {

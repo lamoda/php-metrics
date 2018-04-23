@@ -17,6 +17,14 @@
         </testsuite>
     </testsuites>
 
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <env name="SHELL_VERBOSITY" value="-1" />
+        <env name="KERNEL_CLASS" value="Lamoda\Metric\MetricBundle\Tests\Fixtures\TestKernel" />
+        <env name="APP_ENV" value="test" />
+        <env name="APP_DEBUG" value="1" />
+    </php>
+
     <filter>
         <whitelist>
             <directory>./src/</directory>

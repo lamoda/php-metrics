@@ -14,13 +14,13 @@ matrix:
     - php: nightly
   include:
   - php: 7
+    env: PACKAGES='symfony/symfony=2.7.*'
+  - php: 7
     env: PACKAGES='symfony/symfony=2.8.*'
   - php: 7
     env: PACKAGES='symfony/symfony=3.4.*'
   - php: 7.1
     env: PACKAGES='symfony/symfony=4.0.*'
-  - php: nightly
-    env: PACKAGES='symfony/symfony=4.1.*@dev'
 
 before_install:
   - travis_retry composer self-update

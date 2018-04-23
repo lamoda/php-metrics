@@ -1,2 +1,2 @@
-Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric:
+Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric:
   type: entity

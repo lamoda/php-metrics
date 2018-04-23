@@ -295,7 +295,7 @@ lamoda_metrics:
 
 ### Configuration
 
-See [configuration reference](doc/reference.md)
+See [configuration reference](doc/symfony/reference.md)
 
 ## Extending
 

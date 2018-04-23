@@ -1,6 +1,6 @@
 <?php
 
-namespace Lamoda\MetricBundle\Tests\Fixtures;
+namespace Lamoda\Metric\MetricBundle\Tests\Fixtures;
 
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 

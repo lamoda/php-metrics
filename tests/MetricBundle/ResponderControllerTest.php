@@ -1,19 +1,32 @@
 <?php
 
-namespace Lamoda\MetricBundle\Tests;
+namespace Lamoda\Metric\MetricBundle\Tests;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\SchemaValidator;
-use Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric;
-use Lamoda\MetricBundle\Tests\Fixtures\Entity\MetricGroup;
-use Lamoda\MetricBundle\Tests\Fixtures\TestKernel;
-use Lamoda\MetricStorage\AdjustableMetricStorageInterface;
-use Lamoda\MetricStorage\Exception\MetricStorageException;
+use Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric;
+use Lamoda\Metric\MetricBundle\Tests\Fixtures\TestKernel;
+use Lamoda\Metric\Storage\AdjustableMetricStorageInterface;
+use Lamoda\Metric\Storage\Exception\MetricStorageException;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Filesystem\Filesystem;
 
+/**
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\LamodaMetricExtension
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Configuration
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterCollectorsPass
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterReceiversPass
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterResponseFactoriesPass
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Receiver
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Responder
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFactory
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source
+ * @runTestsInSeparateProcesses
+ */
 final class ResponderControllerTest extends WebTestCase
 {
     /** @var Client */
@@ -21,18 +34,19 @@ final class ResponderControllerTest extends WebTestCase
     /** @var EntityManagerInterface */
     private static $em;
 
-    /**
-     * @throws \Doctrine\ORM\Tools\ToolsException
-     */
-    public static function setUpBeforeClass()
-    {
-        static::$client = static::createClient();
-        self::mockDoctrine();
-    }
-
-    protected static function getKernelClass()
+    protected static function getKernelClass(): string
     {
         return TestKernel::class;
+    }
+
+    protected static function createKernel(array $options = [])
+    {
+        $kernel = parent::createKernel($options);
+        $fs = new Filesystem();
+        $fs->remove($kernel->getCacheDir());
+        $fs->remove($kernel->getLogDir());
+
+        return $kernel;
     }
 
     protected static function getContainer(): ContainerInterface
@@ -81,18 +95,54 @@ final class ResponderControllerTest extends WebTestCase
         return static::$em;
     }
 
+    public function getTelegrafTestRoutes(): array
+    {
+        return [
+            'basic' => ['/metrics/telegraf_json'],
+            'custom' => ['/metrics/custom_telegraf'],
+        ];
+    }
+
     /**
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
+     * @param string $path
+     *
+     * @dataProvider getTelegrafTestRoutes
      */
-    public function testMetricsReturned()
+    public function testTelegrafMetricsReturned(string $path)
+    {
+        $container = static::getContainer();
+        $doctrine = $this->persistMetrics($container);
+        $this->assertAdjustableMetric($container, $doctrine);
+        $this->assertTelegraf($path);
+    }
+
+    public function testPrometheusMetricsReturned()
     {
         $container = static::getContainer();
         $doctrine = $this->persistMetrics($container);
         $this->assertAdjustableMetric($container, $doctrine);
         $this->assertPrometheus();
-        $this->assertTelegraf('/metrics/telegraf');
-        $this->assertTelegraf('/metrics/custom_telegraf');
+    }
+
+    protected function tearDown()
+    {
+        $fs = new Filesystem();
+        static::$em->close();
+        $cacheDir = static::$kernel->getCacheDir();
+        $logDir = static::$kernel->getLogDir();
+
+        parent::tearDown();
+        $fs->remove($cacheDir);
+        $fs->remove($logDir);
+    }
+
+    /**
+     * @throws \Doctrine\ORM\Tools\ToolsException
+     */
+    protected function setUp()
+    {
+        static::$client = static::createClient();
+        self::mockDoctrine();
     }
 
     private function assertTelegraf(string $url)
@@ -108,17 +158,14 @@ final class ResponderControllerTest extends WebTestCase
 [
   {
     "test_1": 246,
-    "test_2": 12.3,
     "test_3": 17,
+    "test_4": 5.5,
+    "test_2": 12.3,
     "type": "doctrine_group"
   },
   {
-    "test_1": 246,
-    "test_2": 12.3,
-    "test_3": 17,
-    "test_4": 5.5,
-    "custom_metric_for_composite": 2.2,
     "custom_metric": 1,
+    "custom_metric_for_composite": 2.2,
     "type": "custom"
   }
 ]
@@ -138,15 +185,12 @@ JSON
 
         self::assertSame(
             <<<'PROMETHEUS'
-metrics_test_1{type="doctrine_group"} 246
-metrics_test_2{type="doctrine_group"} 12.3
-metrics_test_3{type="doctrine_group"} 17
-metrics_test_1{type="custom"} 246
-metrics_test_3{type="custom"} 17
-metrics_test_4{type="custom"} 5.5
-metrics_test_2{type="custom"} 12.3
-metrics_custom_metric_for_composite{type="custom"} 2.2
+metrics_test_1{type="doctrine_group",own_tag="m1"} 246
+metrics_test_3{type="doctrine_group",own_tag="m3"} 17
+metrics_test_4{type="doctrine_group",own_tag="m4"} 5.5
+metrics_test_2{type="doctrine_group",own_tag="m2"} 12.3
 metrics_custom_metric{type="custom"} 1
+metrics_custom_metric_for_composite{type="custom"} 2.2
 
 PROMETHEUS
             ,
@@ -164,7 +208,7 @@ PROMETHEUS
     private function assertAdjustableMetric(ContainerInterface $container, EntityManagerInterface $doctrine)
     {
         /** @var AdjustableMetricStorageInterface $adjuster */
-        $adjuster = $container->get(AdjustableMetricStorageInterface::class);
+        $adjuster = $container->get('test.' . AdjustableMetricStorageInterface::class);
 
         self::assertTrue($adjuster->hasAdjustableMetric('test_1'));
 
@@ -194,26 +238,14 @@ PROMETHEUS
         /** @var EntityManagerInterface $doctrine */
         $doctrine = $container->get('doctrine.orm.entity_manager');
 
-        $m1 = new Metric('test_1', 241.0);
-        $m2 = new Metric('test_2', 12.3);
-        $m3 = new Metric('test_3', 17.0);
-        $m4 = new Metric('test_4', 5.5);
+        $m1 = new Metric('test_1', 241.0, ['own_tag' => 'm1']);
+        $m2 = new Metric('test_2', 12.3, ['own_tag' => 'm2']);
+        $m3 = new Metric('test_3', 17.0, ['own_tag' => 'm3']);
+        $m4 = new Metric('test_4', 5.5, ['own_tag' => 'm4']);
         $doctrine->persist($m1);
         $doctrine->persist($m3);
         $doctrine->persist($m4);
         $doctrine->persist($m2);
-
-        $group = new MetricGroup('doctrine_group', [$m1, $m2, $m4]);
-        $group->addMetric($m3);
-        $group->removeMetric($m4);
-        $group->setTag('type', 'doctrine_group');
-        $group->setTag('invalid', '');
-        $group->removeTag('invalid');
-
-        $doctrine->persist($group);
-
-        self::assertSame('doctrine_group', $group->getName());
-        self::assertSame([$m1, $m2, $m3], array_values(iterator_to_array($group)));
 
         $doctrine->flush();
         $doctrine->clear();

@@ -1,9 +1,9 @@
 <?php
 
-namespace Lamoda\MetricBundle\Tests\Fixtures;
+namespace Lamoda\Metric\MetricBundle\Tests\Fixtures;
 
 use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
-use Lamoda\MetricBundle\LamodaMetricBundle;
+use Lamoda\Metric\MetricBundle\LamodaMetricBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -11,14 +11,6 @@ use Symfony\Component\HttpKernel\Kernel;
 
 final class TestKernel extends Kernel
 {
-    public function __construct($environment, $debug)
-    {
-        $fs = new Filesystem();
-        $fs->remove($this->getCacheDir());
-        $fs->remove($this->getLogDir());
-        parent::__construct($environment, $debug);
-    }
-
     /** {@inheritdoc} */
     public function registerBundles()
     {

@@ -1,11 +1,14 @@
 <?php
 
-namespace Lamoda\MetricBundle\Tests\DependencyInjection;
+namespace Lamoda\Metric\MetricBundle\Tests\DependencyInjection;
 
-use Lamoda\MetricBundle\DependencyInjection\Configuration;
+use Lamoda\Metric\MetricBundle\DependencyInjection\Configuration;
 use PHPUnit\Framework\TestCase;
 use Symfony\Component\Yaml\Yaml;
 
+/**
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Configuration
+ */
 final class ConfigurationTest extends TestCase
 {
     public function getSamples(): array
@@ -14,7 +17,7 @@ final class ConfigurationTest extends TestCase
 
         $samples = array_combine($files, $files);
         $samples = array_map(
-            function ($fname) {
+            function (string $fname) {
                 return [$fname];
             },
             $samples
@@ -38,10 +41,9 @@ final class ConfigurationTest extends TestCase
 
         $config = $tree->finalize($data);
 
-        self::assertArrayHasKey('metrics', $config);
-        self::assertArrayHasKey('groups', $config);
-        self::assertArrayHasKey('sources', $config['metrics']);
-        self::assertArrayHasKey('sources', $config['groups']);
-        self::assertArrayHasKey('custom', $config['groups']);
+        self::assertArrayHasKey('sources', $config);
+        self::assertArrayHasKey('receivers', $config);
+        self::assertArrayHasKey('collectors', $config);
+        self::assertArrayHasKey('responders', $config);
     }
 }

@@ -1,6 +1,7 @@
-Lamoda\MetricBundle\Entity\Metric:
+Lamoda\Metric\MetricBundle\Entity\Metric:
   type: mappedSuperclass
   id:
     key: { type: string }
   fields:
     value: { type: float }
+    tags: { type: json }

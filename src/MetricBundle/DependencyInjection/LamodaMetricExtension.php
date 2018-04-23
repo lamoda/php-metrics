@@ -1,13 +1,15 @@
 <?php
 
-namespace Lamoda\MetricBundle\DependencyInjection;
+namespace Lamoda\Metric\MetricBundle\DependencyInjection;
 
-use Lamoda\MetricBundle\Controller\ResponderController;
-use Lamoda\MetricInfra\Decorators\ResolvableMetricGroup;
-use Lamoda\MetricInfra\Decorators\ResolvableMetricGroupSource;
-use Lamoda\MetricInfra\Decorators\ResolvableMetricSource;
-use Lamoda\MetricResponder\GroupSource\CompositeMetricGroupSource;
-use Lamoda\MetricResponder\MetricGroup\CombinedMetricGroup;
+use Lamoda\Metric\MetricBundle\Controller\HttpFoundationResponder;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Receiver;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Responder;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFactory;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source;
+use Lamoda\Metric\Responder\PsrResponder;
+use Lamoda\Metric\Storage\Decorators\ResolvableMetricSource;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -17,10 +19,7 @@ use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class LamodaMetricExtension extends ConfigurableExtension
 {
-    /** @var Definition */
-    private $resolverDelegate;
-
-    public function getAlias()
+    public function getAlias(): string
     {
         return 'lamoda_metrics';
     }
@@ -29,173 +28,92 @@ final class LamodaMetricExtension extends ConfigurableExtension
     protected function loadInternal(array $mergedConfig, ContainerBuilder $container)
     {
         $loader = new YamlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('response_factories.yml');
         $loader->load('services.yml');
 
-        $this->resolverDelegate = $container->getDefinition('lamoda_metrics.metric_storage');
-
-        $metricSourceReferences = $this->processMetricSources($container, $mergedConfig);
-        $groupSourceReferences = $this->processGroupSources($container, $mergedConfig);
-        $groupsReferences = $this->processCustomGroups($container, $mergedConfig, $metricSourceReferences);
-
-        $this->registerResponders($mergedConfig, $container, $groupsReferences, $groupSourceReferences);
+        $this->processFactories($container, $mergedConfig['response_factories'] ?? []);
+        $this->processSources($container, $mergedConfig['sources'] ?? []);
+        $this->processCollectors($container, $mergedConfig['collectors'] ?? []);
+        $this->processResponders($container, $mergedConfig['responders'] ?? []);
+        $this->processReceivers($container, $mergedConfig['receivers'] ?? []);
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param array $mergedConfig
-     *
-     * @return Reference[]
-     */
-    private function processMetricSources(ContainerBuilder $container, array $mergedConfig): array
+    private function processFactories(ContainerBuilder $container, array $config)
     {
-        $metricSources = $mergedConfig['metrics']['sources'];
-        $metricSourceReferences = [];
-        $prefix = 'lamoda_metric.metric_source.';
-        foreach ($metricSources as $name => $sourceConfig) {
-            $id = $prefix . $name;
-            $definition = MetricSourceDefinitionFactory::createDefinition($sourceConfig);
+        foreach ($config as $name => $factoryConfig) {
+            ResponseFactory::register($container, $name, $factoryConfig);
+        }
+    }
 
-            if ($definition instanceof Definition) {
-                $definition->setPublic(false);
-                $container->setDefinition($id, $definition);
-            } elseif ($definition instanceof Reference) {
-                $container->setAlias($id, (string) $definition);
-                $id = (string) $definition;
-            } else {
-                throw new \LogicException('Factory should return either instance of Definition or Reference');
+    private function processCollectors(ContainerBuilder $container, array $config)
+    {
+        foreach ($config as $name => $collectorConfig) {
+            if (!$collectorConfig['enabled']) {
+                continue;
             }
+
+            Collector::register($container, $name, $collectorConfig);
+        }
+    }
+
+    private function processReceivers(ContainerBuilder $container, array $config)
+    {
+        foreach ($config as $name => $receiverConfig) {
+            if (!$receiverConfig['enabled']) {
+                continue;
+            }
+
+            Receiver::register($container, $name, $receiverConfig);
+        }
+    }
+
+    private function processSources(ContainerBuilder $container, array $sources)
+    {
+        $resolverDelegate = $container->getDefinition('lamoda_metrics.metric_storage');
+
+        foreach ($sources as $name => $sourceConfig) {
+            Source::register($container, $name, $sourceConfig);
+
+            $reference = Source::createReference($name);
 
             if ($sourceConfig['storage']) {
+                $resolver = $reference;
                 if ($sourceConfig['type'] !== 'doctrine') {
-                    $resolver = new Definition(ResolvableMetricSource::class, [new Reference($id)]);
-                } else {
-                    $resolver = new Reference($id);
+                    $resolver = new Definition(ResolvableMetricSource::class, [$reference]);
                 }
 
-                $this->resolverDelegate->addMethodCall('delegate', [$resolver]);
+                $resolverDelegate->addMethodCall('delegate', [$resolver]);
             }
-
-            $metricSourceReferences[$name] = new Reference($id);
         }
-
-        return $metricSourceReferences;
     }
 
-    /**
-     * @param ContainerBuilder $container
-     * @param array $mergedConfig
-     *
-     * @return Reference[]
-     */
-    private function processGroupSources(ContainerBuilder $container, array $mergedConfig): array
+    private function processResponders(ContainerBuilder $container, array $config)
     {
-        $groupSourceReferences = [];
-        $groupSources = $mergedConfig['groups']['sources'];
-        $prefix = 'lamoda_metric.group_source.';
-        foreach ($groupSources as $name => $sourceConfig) {
-            $id = $prefix . $name;
-            $definition = MetricGroupSourceDefinitionFactory::createDefinition($sourceConfig);
-            if ($definition instanceof Definition) {
-                $definition->setPublic(false);
-                $container->setDefinition($id, $definition);
-            } elseif ($definition instanceof Reference) {
-                $container->setAlias($id, (string) $definition);
-                $id = (string) $definition;
-            } else {
-                throw new \LogicException('Factory should return either instance of Definition or Reference');
-            }
-
-            if ($sourceConfig['storage']) {
-                if ($sourceConfig['type'] !== 'doctrine') {
-                    $resolver = new Definition(ResolvableMetricGroupSource::class, [new Reference($id)]);
-                } else {
-                    $resolver = new Reference($id);
-                }
-
-                $this->resolverDelegate->addMethodCall('delegate', [$resolver]);
-            }
-
-            $groupSourceReferences[$name] = new Reference($id);
-        }
-
-        return $groupSourceReferences;
-    }
-
-    /**
-     * @param ContainerBuilder $container
-     * @param array $mergedConfig
-     * @param Reference[] $metricSourceReferences
-     *
-     * @return Reference[]
-     */
-    private function processCustomGroups(
-        ContainerBuilder $container,
-        array $mergedConfig,
-        array $metricSourceReferences
-    ): array {
-        $groupsReferences = [];
-        $customGroups = $mergedConfig['groups']['custom'];
-        $prefix = 'lamoda_metric.custom_group.';
-        foreach ($customGroups as $name => $groupConfig) {
-            $id = $prefix . $name;
-            $definition = $container->register($id, CombinedMetricGroup::class);
-            $definition->setArguments([$name, $groupConfig['tags']]);
-            $definition->setPublic(false);
-
-            foreach ($groupConfig['metric_sources'] as $metricSourceName) {
-                $definition->addMethodCall('addSource', [$metricSourceReferences[$metricSourceName]]);
-            }
-
-            foreach ($groupConfig['metric_services'] as $metricId) {
-                $definition->addMethodCall('addMetric', [new Reference($metricId)]);
-            }
-
-            if ($groupConfig['storage']) {
-                $resolver = new Definition(ResolvableMetricGroup::class, [new Reference($id)]);
-
-                $this->resolverDelegate->addMethodCall('delegate', [$resolver]);
-            }
-
-            $groupsReferences[$name] = new Reference($id);
-        }
-
-        return $groupsReferences;
-    }
-
-    /**
-     * @param array $mergedConfig
-     * @param ContainerBuilder $container
-     * @param Reference[] $groupsReferences
-     * @param Reference[] $groupSourceReferences
-     */
-    private function registerResponders(
-        array $mergedConfig,
-        ContainerBuilder $container,
-        array $groupsReferences,
-        array $groupSourceReferences
-    ) {
         $routerLoader = $container->getDefinition('lamoda_metrics.route_loader');
 
-        foreach ($mergedConfig['responders'] as $name => $responderConfig) {
-            $controllerId = 'lamoda_metrics.controller.' . $name;
-            $controller = $container->register($controllerId, ResponderController::class);
-            $source = new Definition(CompositeMetricGroupSource::class);
-            foreach ($responderConfig['groups'] as $groupName) {
-                $source->addMethodCall('addGroup', [$groupsReferences[$groupName]]);
-            }
-            foreach ($responderConfig['sources'] as $sourceName) {
-                $source->addMethodCall('addSource', [$groupSourceReferences[$sourceName]]);
+        foreach ($config as $name => $responderConfig) {
+            if (!$responderConfig['enabled']) {
+                continue;
             }
 
-            $factoryId = $responderConfig['response_factory'] ?? 'lamoda_metrics.response_factory.' . $name;
-            $factory = new Reference($factoryId);
+            $controllerId = Responder::createId($name);
 
+            $psrController = new Definition(PsrResponder::class);
+            $psrController->setPublic(false);
+            $psrController->setArguments(
+                [
+                    Collector::createReference($responderConfig['collector']),
+                    ResponseFactory::createReference($responderConfig['response_factory'] ?? $name),
+                    $responderConfig['format_options'] ?? [],
+                ]
+            );
+
+            $controller = $container->register($controllerId, HttpFoundationResponder::class);
             $controller->setPublic(true);
-            $controller->setArguments([$source, $factory, $responderConfig['prefix']]);
+            $controller->setArguments([$psrController]);
 
             $path = $responderConfig['path'] ?? '/' . $name;
-
-            $routerLoader->addMethodCall('registerController', [$path, $controllerId]);
+            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId, 'createResponse']);
         }
     }
 }
