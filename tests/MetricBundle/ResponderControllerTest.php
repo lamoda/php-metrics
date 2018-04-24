@@ -108,20 +108,86 @@ final class ResponderControllerTest extends WebTestCase
      *
      * @dataProvider getTelegrafTestRoutes
      */
-    public function testTelegrafMetricsReturned(string $path)
+    public function testTelegrafMetricsReturned(string $path): void
     {
         $container = static::getContainer();
-        $doctrine = $this->persistMetrics($container);
-        $this->assertAdjustableMetric($container, $doctrine);
-        $this->assertTelegraf($path);
+        $this->persistMetrics($container);
+        static::$client->request('GET', $path);
+        $response = static::$client->getResponse();
+        self::assertNotNull($response);
+        self::assertTrue($response->isSuccessful());
+        self::assertFalse($response->isCacheable());
+
+        self::assertJsonStringEqualsJsonString(
+            <<<'JSON'
+[
+  {
+    "test_1": 241,
+    "test_3": 17,
+    "test_4": 5.5,
+    "test_2": 12.3,
+    "type": "doctrine_group"
+  },
+  {
+    "custom_metric": 1,
+    "custom_metric_for_composite": 2.2,
+    "type": "custom"
+  }
+]
+JSON
+            ,
+            $response->getContent()
+        );
     }
 
-    public function testPrometheusMetricsReturned()
+    public function testPrometheusMetricsReturned(): void
     {
         $container = static::getContainer();
-        $doctrine = $this->persistMetrics($container);
-        $this->assertAdjustableMetric($container, $doctrine);
-        $this->assertPrometheus();
+        $this->persistMetrics($container);
+        static::$client->request('GET', '/metrics/prometheus');
+        $response = static::$client->getResponse();
+        self::assertNotNull($response);
+        self::assertTrue($response->isSuccessful());
+        self::assertFalse($response->isCacheable());
+
+        self::assertSame(
+            <<<'PROMETHEUS'
+metrics_test_1{type="doctrine_group",own_tag="m1"} 241
+metrics_test_3{type="doctrine_group",own_tag="m3"} 17
+metrics_test_4{type="doctrine_group",own_tag="m4"} 5.5
+metrics_test_2{type="doctrine_group",own_tag="m2"} 12.3
+metrics_custom_metric{type="custom"} 1
+metrics_custom_metric_for_composite{type="custom"} 2.2
+
+PROMETHEUS
+            ,
+            $response->getContent()
+        );
+    }
+
+    public function testAdjustableMetrics(): void
+    {
+        $this->markTestIncomplete('Adjustable metrics are WIP');
+
+        /** @var AdjustableMetricStorageInterface $adjuster */
+        $adjuster = self::getContainer()->get('test.' . AdjustableMetricStorageInterface::class);
+
+        self::assertTrue($adjuster->hasAdjustableMetric('test_1'));
+
+        /** @var Metric $metric */
+        $metric = $adjuster->getAdjustableMetric('test_1');
+
+        self::assertNotNull($metric);
+        $metric->adjust(5);
+
+        self::$em->clear();
+
+        self::assertFalse($adjuster->hasAdjustableMetric('custom_metric'));
+        try {
+            $adjuster->getAdjustableMetric('custom_metric');
+            self::fail('Should throw an exception');
+        } catch (MetricStorageException $exception) {
+        }
     }
 
     protected function tearDown()
@@ -143,89 +209,6 @@ final class ResponderControllerTest extends WebTestCase
     {
         static::$client = static::createClient();
         self::mockDoctrine();
-    }
-
-    private function assertTelegraf(string $url)
-    {
-        static::$client->request('GET', $url);
-        $response = static::$client->getResponse();
-        self::assertNotNull($response);
-        self::assertTrue($response->isSuccessful());
-        self::assertFalse($response->isCacheable());
-
-        self::assertJsonStringEqualsJsonString(
-            <<<'JSON'
-[
-  {
-    "test_1": 246,
-    "test_3": 17,
-    "test_4": 5.5,
-    "test_2": 12.3,
-    "type": "doctrine_group"
-  },
-  {
-    "custom_metric": 1,
-    "custom_metric_for_composite": 2.2,
-    "type": "custom"
-  }
-]
-JSON
-            ,
-            $response->getContent()
-        );
-    }
-
-    private function assertPrometheus()
-    {
-        static::$client->request('GET', '/metrics/prometheus');
-        $response = static::$client->getResponse();
-        self::assertNotNull($response);
-        self::assertTrue($response->isSuccessful());
-        self::assertFalse($response->isCacheable());
-
-        self::assertSame(
-            <<<'PROMETHEUS'
-metrics_test_1{type="doctrine_group",own_tag="m1"} 246
-metrics_test_3{type="doctrine_group",own_tag="m3"} 17
-metrics_test_4{type="doctrine_group",own_tag="m4"} 5.5
-metrics_test_2{type="doctrine_group",own_tag="m2"} 12.3
-metrics_custom_metric{type="custom"} 1
-metrics_custom_metric_for_composite{type="custom"} 2.2
-
-PROMETHEUS
-            ,
-            $response->getContent()
-        );
-    }
-
-    /**
-     * @param ContainerInterface     $container
-     * @param EntityManagerInterface $doctrine
-     *
-     * @throws \Psr\Container\ContainerExceptionInterface
-     * @throws \Psr\Container\NotFoundExceptionInterface
-     */
-    private function assertAdjustableMetric(ContainerInterface $container, EntityManagerInterface $doctrine)
-    {
-        /** @var AdjustableMetricStorageInterface $adjuster */
-        $adjuster = $container->get('test.' . AdjustableMetricStorageInterface::class);
-
-        self::assertTrue($adjuster->hasAdjustableMetric('test_1'));
-
-        /** @var Metric $metric */
-        $metric = $adjuster->getAdjustableMetric('test_1');
-
-        self::assertNotNull($metric);
-        $metric->adjust(5);
-
-        $doctrine->clear();
-
-        self::assertFalse($adjuster->hasAdjustableMetric('custom_metric'));
-        try {
-            $adjuster->getAdjustableMetric('custom_metric');
-            self::fail('Should throw an exception');
-        } catch (MetricStorageException $exception) {
-        }
     }
 
     /**

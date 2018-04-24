@@ -10,7 +10,7 @@ use Lamoda\Metric\Storage\AdjustableMetricInterface;
 use Lamoda\Metric\Storage\AdjustableMetricStorageInterface;
 use Lamoda\Metric\Storage\Exception\MetricStorageException;
 
-final class DoctrineMetricSource implements \IteratorAggregate, MetricSourceInterface, AdjustableMetricStorageInterface
+final class DoctrineMetricSource implements \IteratorAggregate, MetricSourceInterface
 {
     /** @var ManagerRegistry */
     private $registry;
@@ -37,29 +37,6 @@ final class DoctrineMetricSource implements \IteratorAggregate, MetricSourceInte
     public function getMetrics(): \Traversable
     {
         return new \ArrayIterator($this->getManager()->getRepository($this->class)->findAll());
-    }
-
-    /** {@inheritdoc} */
-    public function getAdjustableMetric(string $key, array $tags = []): AdjustableMetricInterface
-    {
-        $manager = $this->getManager();
-
-        $entity = $manager->getRepository($this->class)->find($key);
-
-        if (!$entity instanceof AdjustableMetricInterface) {
-            throw MetricStorageException::becauseUnknownKeyInStorage($key);
-        }
-
-        return new AtomicAdjusterWrapper($manager, $entity);
-    }
-
-    public function hasAdjustableMetric(string $key, array $tags = []): bool
-    {
-        $manager = $this->getManager();
-
-        $entity = $manager->getRepository($this->class)->find($key);
-
-        return $entity instanceof AdjustableMetricInterface;
     }
 
     /** {@inheritdoc} */

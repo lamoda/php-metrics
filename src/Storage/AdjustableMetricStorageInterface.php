@@ -9,14 +9,14 @@ interface AdjustableMetricStorageInterface
     /**
      * Returns adjuster for given metric.
      *
-     * @param string $key metric key
+     * @param string   $name metric key
      * @param string[] $tags tags metrics should have
      *
-     * @return AdjustableMetricInterface
+     * @return MutableMetricInterface
      *
      * @throws MetricStorageException if metric is not found in storage
      */
-    public function getAdjustableMetric(string $key, array $tags = []): AdjustableMetricInterface;
+    public function getAdjustableMetric(string $name, array $tags = []): MutableMetricInterface;
 
     /**
      * Checks if storage has metric named by given key.

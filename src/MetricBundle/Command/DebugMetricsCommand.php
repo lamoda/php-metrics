@@ -45,20 +45,30 @@ final class DebugMetricsCommand extends Command
         foreach ($source->collect()->getMetrics() as $metric) {
             $stopwatch->start($metric->getName());
 
-            $table->addRow([$metric->getName(), $metric->resolve()]);
-
             $profile = $stopwatch->stop($metric->getName());
             $table->addRow(
                 [
                     $metric->getName(),
-                    implode(', ', $metric->getTags()),
+                    $metric->resolve(),
+                    $this->formatTags($metric->getTags()),
                     $profile->getDuration(),
                     ($profile->getMemory() / 1024 / 1024),
                 ]
             );
-
-            $io->comment(sprintf('Group: %s', $metric->getName()));
-            $table->render();
         }
+        $table->render();
+    }
+
+    private function formatTags(array $tags): string
+    {
+        $parts = array_map(
+            function (string $val, string $key) {
+                return "$key:$val";
+            },
+            array_values($tags),
+            array_keys($tags)
+        );
+
+        return implode(', ', $parts);
     }
 }

@@ -3,34 +3,39 @@
 namespace Lamoda\Metric\Adapters\Doctrine;
 
 use Doctrine\ORM\EntityManagerInterface;
-use Lamoda\Metric\Common\Factory\MetricFactoryInterface;
 use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Storage\Exception\ReceiverException;
+use Lamoda\Metric\Storage\MetricDriverInterface;
 use Lamoda\Metric\Storage\MetricReceiverInterface;
 
 final class DoctrineReceiver implements MetricReceiverInterface
 {
     /** @var EntityManagerInterface */
     private $entityManager;
-    /** @var MetricFactoryInterface */
-    private $metricFactory;
+    /** @var MetricDriverInterface */
+    private $driver;
 
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        MetricFactoryInterface $metricFactory
-    ) {
+    public function __construct(EntityManagerInterface $entityManager, MetricDriverInterface $driver)
+    {
         $this->entityManager = $entityManager;
-        $this->metricFactory = $metricFactory;
+        $this->driver = $driver;
     }
 
     /** {@inheritdoc} */
-    public function receive(MetricSourceInterface $source)
+    public function receive(MetricSourceInterface $source): void
     {
         $this->entityManager->beginTransaction();
         try {
             foreach ($source->getMetrics() as $metric) {
-                $persistentMetric = $this->metricFactory->createMetric($metric->getName(), $metric->resolve());
-                $this->entityManager->persist($persistentMetric);
+                $tags = $metric->getTags();
+                $name = $metric->getName();
+                $value = $metric->resolve();
+                $resolved = $this->driver->findMetric($name, $tags);
+                if (!$resolved) {
+                    $this->driver->createMetric($name, $value, $tags);
+                } else {
+                    $resolved->setValue($value);
+                }
             }
 
             $this->entityManager->flush();

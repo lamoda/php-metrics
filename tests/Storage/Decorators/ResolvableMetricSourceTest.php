@@ -4,7 +4,7 @@ namespace Lamoda\Metric\Storage\Tests\Decorators;
 
 use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\Common\Source\IterableMetricSource;
-use Lamoda\Metric\Storage\AdjustableMetricInterface;
+use Lamoda\Metric\Storage\MutableMetricInterface;
 use Lamoda\Metric\Storage\Decorators\ResolvableMetricSource;
 use PHPUnit\Framework\TestCase;
 
@@ -15,7 +15,7 @@ final class ResolvableMetricSourceTest extends TestCase
 {
     public function testDecoratedMethods()
     {
-        $adjustableMetric = $this->createMock(AdjustableMetricInterface::class);
+        $adjustableMetric = $this->createMock(MutableMetricInterface::class);
         $adjustableMetric->method('getName')->willReturn('adjustable_metric');
 
         $nonAdjustableMetric = $this->createMock(MetricInterface::class);

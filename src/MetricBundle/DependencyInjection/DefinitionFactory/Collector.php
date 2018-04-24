@@ -53,6 +53,9 @@ final class Collector
                 $container->setAlias(self::createId($name), $config['id']);
                 break;
         }
+
+        $registry = $container->getDefinition(Collector::REGISTRY_ID);
+        $registry->addMethodCall('register', [$name, self::createReference($name)]);
     }
 
     public static function createReference(string $name): Reference

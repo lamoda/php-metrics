@@ -1,7 +1,16 @@
 Lamoda\Metric\MetricBundle\Entity\Metric:
   type: mappedSuperclass
   id:
-    key: { type: string }
+    id:
+      type: guid
+      generator:
+        strategy: UUID
+  uniqueConstraints:
+    metric_key_tags_unique:
+      columns:
+      - name
+      - tags
   fields:
+    name: { type: string }
     value: { type: float }
     tags: { type: json_array }

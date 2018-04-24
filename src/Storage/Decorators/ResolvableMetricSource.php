@@ -4,7 +4,7 @@ namespace Lamoda\Metric\Storage\Decorators;
 
 use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\Common\MetricSourceInterface;
-use Lamoda\Metric\Storage\AdjustableMetricInterface;
+use Lamoda\Metric\Storage\MutableMetricInterface;
 use Lamoda\Metric\Storage\AdjustableMetricStorageInterface;
 use Lamoda\Metric\Storage\Exception\MetricStorageException;
 
@@ -38,22 +38,22 @@ final class ResolvableMetricSource implements \IteratorAggregate, MetricSourceIn
     }
 
     /** {@inheritdoc} */
-    public function getAdjustableMetric(string $key, array $tags = []): AdjustableMetricInterface
+    public function getAdjustableMetric(string $name, array $tags = []): MutableMetricInterface
     {
         foreach ($this->getMetrics() as $metric) {
-            if ($metric instanceof AdjustableMetricInterface && $metric->getName() === $key) {
+            if ($metric instanceof MutableMetricInterface && $metric->getName() === $name) {
                 return $metric;
             }
         }
 
-        throw MetricStorageException::becauseUnknownKeyInStorage($key);
+        throw MetricStorageException::becauseUnknownKeyInStorage($name);
     }
 
     /** {@inheritdoc} */
     public function hasAdjustableMetric(string $key, array $tags = []): bool
     {
         foreach ($this->getMetrics() as $metric) {
-            if ($metric instanceof AdjustableMetricInterface && $metric->getName() === $key) {
+            if ($metric instanceof MutableMetricInterface && $metric->getName() === $key) {
                 return true;
             }
         }

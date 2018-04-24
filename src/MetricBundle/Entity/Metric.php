@@ -2,12 +2,14 @@
 
 namespace Lamoda\Metric\MetricBundle\Entity;
 
-use Lamoda\Metric\Storage\AdjustableMetricInterface;
+use Lamoda\Metric\Storage\MutableMetricInterface;
 
-abstract class Metric implements AdjustableMetricInterface
+abstract class Metric implements MutableMetricInterface
 {
     /** @var string */
-    private $key;
+    private $id;
+    /** @var string */
+    private $name;
     /** @var float */
     private $value;
     /** @var string[] */
@@ -15,15 +17,20 @@ abstract class Metric implements AdjustableMetricInterface
 
     public function __construct(string $key, float $value, array $tags = [])
     {
-        $this->key = $key;
+        $this->name = $key;
         $this->value = $value;
         $this->tags = $tags;
+    }
+
+    public function getId(): string
+    {
+        return $this->id;
     }
 
     /** {@inheritdoc} */
     public function getName(): string
     {
-        return $this->key;
+        return $this->name;
     }
 
     /** {@inheritdoc} */
@@ -33,9 +40,15 @@ abstract class Metric implements AdjustableMetricInterface
     }
 
     /** {@inheritdoc} */
-    public function adjust(float $delta)
+    public function adjust(float $delta): void
     {
         $this->value += $delta;
+    }
+
+    /** {@inheritdoc} */
+    public function setValue(float $value): void
+    {
+        $this->value = $value;
     }
 
     /** {@internal } */

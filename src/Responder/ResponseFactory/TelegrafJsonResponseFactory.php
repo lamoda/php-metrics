@@ -62,6 +62,7 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
     private function doFormat(array $source, array $options): array
     {
         $result = [];
+        $tags = [];
         $propagatedTags = $options['propagate_tags'] ?? null;
         $prefix = $options['prefix'] ?? '';
 
@@ -75,9 +76,13 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
 
             foreach ($metric->getTags() as $tag => $value) {
                 if ($propagatedTags && \in_array($tag, $propagatedTags, true)) {
-                    $result[$tag] = (string) $value;
+                    $tags[$tag] = (string) $value;
                 }
             }
+        }
+
+        foreach ($tags as $tag => $value) {
+            $result[$tag] = $value;
         }
 
         return $result;

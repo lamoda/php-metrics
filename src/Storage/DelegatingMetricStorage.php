@@ -25,15 +25,15 @@ final class DelegatingMetricStorage implements AdjustableMetricStorageInterface
     }
 
     /** {@inheritdoc} */
-    public function getAdjustableMetric(string $key, array $tags = []): AdjustableMetricInterface
+    public function getAdjustableMetric(string $name, array $tags = []): MutableMetricInterface
     {
         foreach ($this->delegates as $delegate) {
-            if ($delegate->hasAdjustableMetric($key)) {
-                return $delegate->getAdjustableMetric($key);
+            if ($delegate->hasAdjustableMetric($name)) {
+                return $delegate->getAdjustableMetric($name);
             }
         }
 
-        throw MetricStorageException::becauseUnknownKeyInStorage($key);
+        throw MetricStorageException::becauseUnknownKeyInStorage($name);
     }
 
     /** {@inheritdoc} */

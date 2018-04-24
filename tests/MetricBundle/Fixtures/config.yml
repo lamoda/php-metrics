@@ -30,14 +30,16 @@ services:
     alias: Lamoda\MetricStorage\MetricAdjusterInterface
     public: true
 
-  test.metric_factory:
-    class: Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Factory\MetricFactory
+  test.metric_driver:
+    class: Lamoda\Metric\Adapters\Tests\Doctrine\MetricDriver
+    arguments:
+    - "@doctrine.orm.entity_manager"
 
   test.receiver:
     class: Lamoda\Metric\Adapters\Doctrine\DoctrineReceiver
     arguments:
     - "@doctrine.orm.entity_manager"
-    - "@test.metric_factory"
+    - "@test.metric_driver"
 
 lamoda_metrics:
   sources:

@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 7
   - 7.1
   - 7.2
   - nightly
@@ -13,11 +12,11 @@ matrix:
   allow_failures:
     - php: nightly
   include:
-  - php: 7
+  - php: 7.1
     env: PACKAGES='symfony/symfony=2.7.*'
-  - php: 7
+  - php: 7.1
     env: PACKAGES='symfony/symfony=2.8.*'
-  - php: 7
+  - php: 7.1
     env: PACKAGES='symfony/symfony=3.4.*'
   - php: 7.1
     env: PACKAGES='symfony/symfony=4.0.*'

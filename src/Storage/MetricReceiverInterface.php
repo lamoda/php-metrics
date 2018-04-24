@@ -11,5 +11,5 @@ interface MetricReceiverInterface
      *
      * @param MetricSourceInterface $source
      */
-    public function receive(MetricSourceInterface $source);
+    public function receive(MetricSourceInterface $source): void;
 }

@@ -11,9 +11,9 @@ final class IterableMetricSource implements \IteratorAggregate, MetricSourceInte
     private $metrics;
 
     /**
-     * @param iterable|MetricInterface[]|\Traversable $metrics
+     * @param iterable|MetricInterface[] $metrics
      */
-    public function __construct($metrics)
+    public function __construct(iterable $metrics)
     {
         if (!$metrics instanceof \Traversable) {
             $metrics = new \ArrayIterator($metrics);
