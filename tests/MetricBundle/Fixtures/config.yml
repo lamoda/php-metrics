@@ -2,9 +2,6 @@ imports:
   - { resource: kernel_setup.yml }
 
 services:
-  _defaults:
-    public: true
-
   custom_tagged_metric:
     class: Lamoda\Metric\Common\Metric
     arguments:
