@@ -113,7 +113,7 @@ final class LamodaMetricExtension extends ConfigurableExtension
             $controller->setArguments([$psrController]);
 
             $path = $responderConfig['path'] ?? '/' . $name;
-            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId, 'createResponse']);
+            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId.':createResponse']);
         }
     }
 }
