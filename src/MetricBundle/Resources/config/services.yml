@@ -32,7 +32,7 @@ services:
     class: Lamoda\Metric\MetricBundle\Command\DebugMetricsCommand
     arguments:
     - "@lamoda_metrics.collector_registry"
-    public: false
+    public: true
     tags:
     - {name: console.command, command: 'metrics:debug'}
 
@@ -41,6 +41,6 @@ services:
     arguments:
     - "@lamoda_metrics.collector_registry"
     - "@lamoda_metrics.receiver_registry"
-    public: false
+    public: true
     tags:
     - {name: console.command, command: 'metrics:materialize'}
