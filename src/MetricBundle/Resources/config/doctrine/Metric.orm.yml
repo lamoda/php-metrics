@@ -4,4 +4,4 @@ Lamoda\Metric\MetricBundle\Entity\Metric:
     key: { type: string }
   fields:
     value: { type: float }
-    tags: { type: json }
+    tags: { type: json_array }
