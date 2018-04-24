@@ -41,7 +41,7 @@ final class MetricRouteLoader implements LoaderInterface
 
         $collection = new RouteCollection();
 
-        foreach ($this->controllers as $name => [$path, $controller, $method]) {
+        foreach ($this->controllers as $name => list($path, $controller, $method)) {
             $collection->add($controller, new Route($path, ['_controller' => [$controller, $method]]));
         }
 
