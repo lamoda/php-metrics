@@ -42,7 +42,7 @@ final class ConfigurationTest extends TestCase
         $config = $tree->finalize($data);
 
         self::assertArrayHasKey('sources', $config);
-        self::assertArrayHasKey('receivers', $config);
+        self::assertArrayHasKey('storages', $config);
         self::assertArrayHasKey('collectors', $config);
         self::assertArrayHasKey('responders', $config);
     }

@@ -25,7 +25,7 @@ final class ResponseFactory
         return new Reference(self::createId($name));
     }
 
-    public static function register(ContainerBuilder $container,string $name,array $config)
+    public static function register(ContainerBuilder $container, string $name, array $config)
     {
     }
 }

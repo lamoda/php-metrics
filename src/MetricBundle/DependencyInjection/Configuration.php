@@ -5,9 +5,9 @@ namespace Lamoda\Metric\MetricBundle\DependencyInjection;
 use Lamoda\Metric\Collector\MetricCollectorInterface;
 use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector;
-use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Receiver;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source;
-use Lamoda\Metric\Storage\MetricReceiverInterface;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Storage;
+use Lamoda\Metric\Storage\MetricStorageInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
@@ -35,9 +35,9 @@ final class Configuration implements ConfigurationInterface
         $responders->useAttributeAsKey('name', false);
         $this->createResponder($responders->prototype('array'));
 
-        $receivers = $root->children()->arrayNode('receivers');
-        $receivers->useAttributeAsKey('name', false);
-        $this->createReceiver($receivers->prototype('array'));
+        $storages = $root->children()->arrayNode('storages');
+        $storages->useAttributeAsKey('name', false);
+        $this->createStorage($storages->prototype('array'));
 
         $collectors = $root->children()->arrayNode('collectors');
         $collectors->useAttributeAsKey('name', false);
@@ -59,26 +59,25 @@ final class Configuration implements ConfigurationInterface
             ->info('Type of the source');
 
         $source->children()
-            ->booleanNode('storage')
-            ->info('Mark this source as metric storage. Will perform adjustable metrics resolution against it')
-            ->defaultFalse();
-
-        $source->children()
             ->scalarNode('id')
             ->defaultNull()
-            ->info('Source service identifier');
+            ->info('Source service identifier [service]');
 
         $source->children()
             ->scalarNode('entity')
             ->defaultValue(MetricInterface::class)
-            ->info('Entity class');
+            ->info('Entity class [doctrine]');
 
         $source->children()
             ->arrayNode('metrics')
-            ->info('Metric services')
+            ->info('Metric services [composite]')
             ->defaultValue([])
-            ->prototype('scalar')
-            ->cannotBeEmpty();
+            ->prototype('scalar');
+
+        $source->children()
+            ->scalarNode('storage')
+            ->info('Storage name [storage]')
+            ->defaultNull();
     }
 
     private function createResponseFactory(ScalarNodeDefinition $responseFactory)
@@ -112,7 +111,7 @@ final class Configuration implements ConfigurationInterface
         $collector->children()
             ->enumNode('type')
             ->cannotBeEmpty()
-            ->defaultValue(Collector::COLLECTOR_TYPE_SERVICE)
+            ->defaultValue('service')
             ->values(Collector::TYPES)
             ->info('Type of the collector');
 
@@ -132,35 +131,34 @@ final class Configuration implements ConfigurationInterface
             ->defaultValue([]);
 
         $collector->children()
-            ->arrayNode('tags')
+            ->arrayNode('default_tags')
             ->defaultValue([])
-            ->info('Append these tags to all collected metrics')
+            ->info('Default tag values for metrics from this collector')
             ->prototype('scalar')
             ->cannotBeEmpty();
     }
 
-    private function createReceiver(ArrayNodeDefinition $receiver)
+    private function createStorage(ArrayNodeDefinition $storage)
     {
-        $receiver->info(
-            'Receivers also can be configured as services via `' . DefinitionFactory\Receiver::TAG . '` tag with `' . DefinitionFactory\Receiver::ALIAS_ATTRIBUTE . '` attribute'
+        $storage->info(
+            'Storages also can be configured as services via `' . DefinitionFactory\Storage::TAG . '` tag with `' . DefinitionFactory\Storage::ALIAS_ATTRIBUTE . '` attribute'
         );
-        $receiver->beforeNormalization()->ifString()->then(
+        $storage->beforeNormalization()->ifString()->then(
             function (string $v) {
-                return ['type' => Receiver::RECEIVER_TYPE_SERVICE, 'id' => $v];
+                return ['type' => 'service', 'id' => $v];
             }
         );
-        $receiver->canBeDisabled();
-        $receiver->children()->scalarNode('id')
+        $storage->canBeDisabled();
+        $storage->children()->scalarNode('id')
             ->cannotBeEmpty()
-            ->info('Receiver service ID')
-            ->isRequired()
-            ->example(MetricReceiverInterface::class);
-        $receiver->children()
+            ->info('Storage service ID [service]')
+            ->example(MetricStorageInterface::class);
+        $storage->children()
             ->enumNode('type')
             ->cannotBeEmpty()
-            ->defaultValue(Receiver::RECEIVER_TYPE_SERVICE)
-            ->values(Receiver::TYPES)
-            ->info('Type of the receiver');
+            ->defaultValue('service')
+            ->values(Storage::TYPES)
+            ->info('Type of the storage');
     }
 
     private function createResponder(ArrayNodeDefinition $responder)
@@ -183,16 +181,12 @@ final class Configuration implements ConfigurationInterface
             ->info('Propagate tags to group [telegraf_json]')
             ->prototype('scalar')
             ->defaultValue([])
-            ->cannotBeEmpty()
             ->example('type');
-        $options->children()->scalarNode('group_by_tag')
+        $options->children()->arrayNode('group_by_tags')
             ->info('Arrange metrics to groups according to tag value. Tag name goes to group name [telegraf_json]')
-            ->defaultNull()
-            ->example('tag_1');
-        $options->children()->scalarNode('untagged_group_name')
-            ->info('Group name for metrics without tag being grouped [telegraf_json]')
-            ->defaultNull()
-            ->example('other');
+            ->prototype('scalar')
+            ->defaultValue([])
+            ->example(['tag_1']);
 
         $responder->children()->scalarNode('response_factory')
             ->cannotBeEmpty()

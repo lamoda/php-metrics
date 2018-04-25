@@ -6,6 +6,7 @@ use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityManagerInterface;
 use Lamoda\Metric\Storage\MutableMetricInterface;
 
+/** @internal */
 final class AtomicMutableWrapper implements MutableMetricInterface
 {
     /** @var EntityManagerInterface */
@@ -22,31 +23,19 @@ final class AtomicMutableWrapper implements MutableMetricInterface
     /** {@inheritdoc} */
     public function adjust(float $delta): void
     {
-        $this->manager->transactional(
+        $this->executeWithLock(
             function () use ($delta) {
-                $this->manager->lock($this->metric, LockMode::PESSIMISTIC_WRITE);
-
-                $this->manager->refresh($this->metric);
-
                 $this->metric->adjust($delta);
-
-                $this->manager->flush();
             }
         );
     }
 
     /** {@inheritdoc} */
-    public function setValue(float $delta): void
+    public function setValue(float $value): void
     {
-        $this->manager->transactional(
-            function () use ($delta) {
-                $this->manager->lock($this->metric, LockMode::PESSIMISTIC_WRITE);
-
-                $this->manager->refresh($this->metric);
-
-                $this->metric->setValue($delta);
-
-                $this->manager->flush();
+        $this->executeWithLock(
+            function () use ($value) {
+                $this->metric->setValue($value);
             }
         );
     }
@@ -67,5 +56,20 @@ final class AtomicMutableWrapper implements MutableMetricInterface
     public function getTags(): array
     {
         return $this->metric->getTags();
+    }
+
+    private function executeWithLock(callable $fn): void
+    {
+        $this->manager->transactional(
+            function () use ($fn) {
+                $this->manager->lock($this->metric, LockMode::PESSIMISTIC_WRITE);
+
+                $this->manager->refresh($this->metric);
+
+                $fn();
+
+                $this->manager->flush();
+            }
+        );
     }
 }

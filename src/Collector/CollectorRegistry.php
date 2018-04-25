@@ -28,7 +28,7 @@ final class CollectorRegistry
      *
      * @throws \OutOfBoundsException
      */
-    public function getCollector(string  $name): MetricCollectorInterface
+    public function getCollector(string $name): MetricCollectorInterface
     {
         if (!array_key_exists($name, $this->collectors)) {
             throw new \OutOfBoundsException('Unknown collector in registry: ' . $name);

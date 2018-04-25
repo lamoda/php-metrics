@@ -7,8 +7,8 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\SchemaValidator;
 use Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric;
 use Lamoda\Metric\MetricBundle\Tests\Fixtures\TestKernel;
-use Lamoda\Metric\Storage\AdjustableMetricStorageInterface;
 use Lamoda\Metric\Storage\Exception\MetricStorageException;
+use Lamoda\Metric\Storage\MetricMutatorInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -21,7 +21,7 @@ use Symfony\Component\Filesystem\Filesystem;
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterReceiversPass
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterResponseFactoriesPass
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector
- * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Receiver
+ * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Storage
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Responder
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFactory
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source
@@ -120,20 +120,10 @@ final class ResponderControllerTest extends WebTestCase
 
         self::assertJsonStringEqualsJsonString(
             <<<'JSON'
-[
-  {
-    "test_1": 241,
-    "test_3": 17,
-    "test_4": 5.5,
-    "test_2": 12.3,
-    "type": "doctrine_group"
-  },
-  {
+{
     "custom_metric": 1,
-    "custom_metric_for_composite": 2.2,
-    "type": "custom"
-  }
-]
+    "custom_metric_for_composite": 2.2
+}
 JSON
             ,
             $response->getContent()
@@ -152,12 +142,8 @@ JSON
 
         self::assertSame(
             <<<'PROMETHEUS'
-metrics_test_1{type="doctrine_group",own_tag="m1"} 241
-metrics_test_3{type="doctrine_group",own_tag="m3"} 17
-metrics_test_4{type="doctrine_group",own_tag="m4"} 5.5
-metrics_test_2{type="doctrine_group",own_tag="m2"} 12.3
-metrics_custom_metric{type="custom"} 1
-metrics_custom_metric_for_composite{type="custom"} 2.2
+metrics_custom_metric{collector="raw"} 1
+metrics_custom_metric_for_composite{collector="raw"} 2.2
 
 PROMETHEUS
             ,
@@ -169,10 +155,10 @@ PROMETHEUS
     {
         $this->markTestIncomplete('Adjustable metrics are WIP');
 
-        /** @var AdjustableMetricStorageInterface $adjuster */
-        $adjuster = self::getContainer()->get('test.' . AdjustableMetricStorageInterface::class);
+        /** @var MetricMutatorInterface $adjuster */
+        $adjuster = self::getContainer()->get('test.' . MetricMutatorInterface::class);
 
-        self::assertTrue($adjuster->hasAdjustableMetric('test_1'));
+        self::assertTrue($adjuster->adjustMetric('test_1'));
 
         /** @var Metric $metric */
         $metric = $adjuster->getAdjustableMetric('test_1');

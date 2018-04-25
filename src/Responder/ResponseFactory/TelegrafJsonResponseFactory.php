@@ -97,19 +97,26 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
     private function arrangeGroups(MetricSourceInterface $source, array $options): array
     {
         $groups = [];
-        if (!isset($options['group_by_tag'])) {
+        if (empty($options['group_by_tags'])) {
             $groups[0] = iterator_to_array($source->getMetrics(), false);
 
             return $groups;
         }
 
-        $tag = $options['group_by_tag'];
-        $otherName = $options['untagged_group_name'] ?? 'other';
+        // Wip on matrix grouping
+        $tags = $options['group_by_tags'];
+        $tag = array_shift($tags);
+
+        $otherGroup = [];
 
         foreach ($source->getMetrics() as $metric) {
-            $key = $metric->getTags()[$tag] ?? $otherName;
-            $groups[$key][] = $metric;
+            if (isset($metric->getTags()[$tag])) {
+                $groups[$metric->getTags()[$tag]][] = $metric;
+            } else {
+                $otherGroup[] = $metric;
+            }
         }
+        $groups[] = $otherGroup;
 
         return array_values($groups);
     }

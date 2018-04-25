@@ -20,8 +20,8 @@ services:
     tags:
     - { name: routing.loader }
 
-  lamoda_metrics.receiver_registry:
-    class: Lamoda\Metric\Storage\ReceiverRegistry
+  lamoda_metrics.storage_registry:
+    class: Lamoda\Metric\Storage\StorageRegistry
     public: false
 
   lamoda_metrics.collector_registry:
@@ -40,7 +40,7 @@ services:
     class: Lamoda\Metric\MetricBundle\Command\MaterializeMetricsCommand
     arguments:
     - "@lamoda_metrics.collector_registry"
-    - "@lamoda_metrics.receiver_registry"
+    - "@lamoda_metrics.storage_registry"
     public: true
     tags:
     - {name: console.command, command: 'metrics:materialize'}

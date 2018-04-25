@@ -3,7 +3,6 @@
 namespace Lamoda\Metric\Responder\ResponseFactory;
 
 use GuzzleHttp\Psr7\Response;
-use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Responder\MetricGroupInterface;
 use Lamoda\Metric\Responder\MetricGroupSourceInterface;
@@ -35,10 +34,9 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
     {
         $data = [];
         foreach ($source->getMetrics() as $metric) {
-            $value = $this->getMetricValue($metric);
             $data[] = [
                 'name' => ($options['prefix'] ?? '') . $metric->getName(),
-                'value' => $value,
+                'value' => $metric->resolve(),
                 'tags' => $metric->getTags(),
             ];
         }
@@ -48,18 +46,6 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
             ['Content-Type' => self::CONTENT_TYPE],
             $this->getContent($data)
         );
-    }
-
-    /**
-     * @param $metric
-     *
-     * @return mixed
-     */
-    private function getMetricValue(MetricInterface $metric)
-    {
-        $value = $metric->resolve();
-
-        return is_numeric($value) ? (float) $value : $value;
     }
 
     /**
@@ -84,8 +70,8 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
      * Get single line of Prometheus output.
      *
      * @param string $name
-     * @param array $tags
-     * @param null $value
+     * @param array  $tags
+     * @param null   $value
      *
      * @return null|string
      */

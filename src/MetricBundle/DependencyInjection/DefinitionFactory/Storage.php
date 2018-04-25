@@ -8,21 +8,18 @@ use Symfony\Component\DependencyInjection\Reference;
 /**
  * @internal
  */
-final class Receiver
+final class Storage
 {
-    const TAG = 'lamoda_metrics.receiver';
-    const ALIAS_ATTRIBUTE = 'alias';
-    const ID_PREFIX = 'lamoda_metrics.receiver.';
+    public const TAG = 'lamoda_metrics.storage';
+    public const ALIAS_ATTRIBUTE = 'alias';
+    public const REGISTRY_ID = 'lamoda_metrics.storage_registry';
 
-    const REGISTRY_ID = 'lamoda_metrics.receiver_registry';
-
-    const RECEIVER_TYPE_SERVICE = 'service';
-    const RECEIVER_TYPE_DOCTRINE = 'doctrine';
-
-    const TYPES = [
-        self::RECEIVER_TYPE_SERVICE,
-        self::RECEIVER_TYPE_DOCTRINE,
+    public const TYPES = [
+        self::STORAGE_TYPE_SERVICE,
     ];
+
+    private const STORAGE_TYPE_SERVICE = 'service';
+    private const ID_PREFIX = 'lamoda_metrics.storage.';
 
     public static function createId(string $name): string
     {
@@ -37,15 +34,11 @@ final class Receiver
     public static function register(ContainerBuilder $container, string $name, array $config)
     {
         switch ($config['type']) {
-            case self::RECEIVER_TYPE_SERVICE:
-                $container->getDefinition(self::REGISTRY_ID)->addMethodCall(
-                    'register',
-                    [$name, self::createReference($name)]
-                );
+            case self::STORAGE_TYPE_SERVICE:
                 $container->setAlias(self::createId($name), $config['id']);
                 break;
-            case self::RECEIVER_TYPE_DOCTRINE:
-                break;
         }
+
+        $container->getDefinition(self::REGISTRY_ID)->addMethodCall('register', [$name, self::createReference($name)]);
     }
 }

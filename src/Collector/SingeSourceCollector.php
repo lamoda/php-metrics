@@ -3,7 +3,7 @@
 namespace Lamoda\Metric\Collector;
 
 use Lamoda\Metric\Common\MetricSourceInterface;
-use Lamoda\Metric\Common\Source\ExtraTagsMetricSource;
+use Lamoda\Metric\Common\Source\DefaultTaggingMetricSource;
 
 final class SingeSourceCollector implements MetricCollectorInterface
 {
@@ -16,7 +16,7 @@ final class SingeSourceCollector implements MetricCollectorInterface
      */
     public function __construct(MetricSourceInterface $source, array $tags = [])
     {
-        $this->source = new ExtraTagsMetricSource($source, $tags);
+        $this->source = new DefaultTaggingMetricSource($source, $tags);
     }
 
     /** {@inheritdoc} */

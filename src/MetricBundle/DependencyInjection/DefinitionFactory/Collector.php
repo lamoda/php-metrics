@@ -88,7 +88,7 @@ final class Collector
         }
 
         $definition->setArguments(
-            [new Definition(MergingMetricSource::class, $sources), $config['tags']]
+            [new Definition(MergingMetricSource::class, $sources), $config['default_tags'] ?? []]
         );
     }
 }

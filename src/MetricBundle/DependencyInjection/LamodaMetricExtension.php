@@ -4,17 +4,16 @@ namespace Lamoda\Metric\MetricBundle\DependencyInjection;
 
 use Lamoda\Metric\MetricBundle\Controller\HttpFoundationResponder;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector;
-use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Receiver;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Responder;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFactory;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Storage;
 use Lamoda\Metric\Responder\PsrResponder;
 use Lamoda\Metric\Storage\Decorators\ResolvableMetricSource;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\DependencyInjection\Reference;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
 
 final class LamodaMetricExtension extends ConfigurableExtension
@@ -35,7 +34,7 @@ final class LamodaMetricExtension extends ConfigurableExtension
         $this->processSources($container, $mergedConfig['sources'] ?? []);
         $this->processCollectors($container, $mergedConfig['collectors'] ?? []);
         $this->processResponders($container, $mergedConfig['responders'] ?? []);
-        $this->processReceivers($container, $mergedConfig['receivers'] ?? []);
+        $this->processStorages($container, $mergedConfig['storages'] ?? []);
     }
 
     private function processFactories(ContainerBuilder $container, array $config)
@@ -56,14 +55,14 @@ final class LamodaMetricExtension extends ConfigurableExtension
         }
     }
 
-    private function processReceivers(ContainerBuilder $container, array $config)
+    private function processStorages(ContainerBuilder $container, array $config)
     {
-        foreach ($config as $name => $receiverConfig) {
-            if (!$receiverConfig['enabled']) {
+        foreach ($config as $name => $storageConfig) {
+            if (!$storageConfig['enabled']) {
                 continue;
             }
 
-            Receiver::register($container, $name, $receiverConfig);
+            Storage::register($container, $name, $storageConfig);
         }
     }
 
@@ -113,7 +112,7 @@ final class LamodaMetricExtension extends ConfigurableExtension
             $controller->setArguments([$psrController]);
 
             $path = $responderConfig['path'] ?? '/' . $name;
-            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId.':createResponse']);
+            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId . ':createResponse']);
         }
     }
 }

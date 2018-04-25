@@ -5,7 +5,7 @@ namespace Lamoda\Metric\MetricBundle\Command;
 use Lamoda\Metric\Collector\CollectorRegistry;
 use Lamoda\Metric\Common\Metric;
 use Lamoda\Metric\Common\Source\IterableMetricSource;
-use Lamoda\Metric\Storage\ReceiverRegistry;
+use Lamoda\Metric\Storage\StorageRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,26 +17,26 @@ final class MaterializeMetricsCommand extends Command
 
     /** @var CollectorRegistry */
     private $collectorRegistry;
-    /** @var ReceiverRegistry */
-    private $receiverRegistry;
+    /** @var StorageRegistry */
+    private $storageRegistry;
 
-    public function __construct(CollectorRegistry $collectorRegistry, ReceiverRegistry $receiverRegistry)
+    public function __construct(CollectorRegistry $collectorRegistry, StorageRegistry $storageRegistry)
     {
         parent::__construct();
         $this->collectorRegistry = $collectorRegistry;
-        $this->receiverRegistry = $receiverRegistry;
+        $this->storageRegistry = $storageRegistry;
     }
 
     protected function configure()
     {
         $this->addArgument('collector', InputArgument::REQUIRED, 'Collector name from configuration');
-        $this->addArgument('receiver', InputArgument::REQUIRED, 'Receiver name from configuration');
+        $this->addArgument('storage', InputArgument::REQUIRED, 'Storage name from configuration');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $collector = $this->collectorRegistry->getCollector($input->getArgument('collector'));
-        $receiver = $this->receiverRegistry->getReceiver($input->getArgument('receiver'));
+        $storage = $this->storageRegistry->getStorage($input->getArgument('storage'));
 
         $metrics = [];
         foreach ($collector->collect()->getMetrics() as $metric) {
@@ -44,6 +44,6 @@ final class MaterializeMetricsCommand extends Command
         }
         $newSource = new IterableMetricSource($metrics);
 
-        $receiver->receive($newSource);
+        $storage->receive($newSource);
     }
 }

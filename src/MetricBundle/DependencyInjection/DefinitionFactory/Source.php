@@ -12,21 +12,22 @@ use Symfony\Component\DependencyInjection\Reference;
 /** @internal */
 final class Source
 {
-    const TAG = 'lamoda_metrics.source';
-    const ALIAS_ATTRIBUTE = 'alias';
+    public const TAG = 'lamoda_metrics.source';
+    public const ALIAS_ATTRIBUTE = 'alias';
 
-    const ID_PREFIX = 'lamoda_metric.metric_source.';
+    public const METRIC_SOURCE_TYPES = [
+        self::METRIC_SOURCE_DOCTRINE,
+        self::METRIC_SOURCE_SERVICE,
+        self::METRIC_SOURCE_COMPOSITE,
+        self::METRIC_SOURCE_STORAGE,
+    ];
 
-    const METRIC_SOURCE_TYPES
-        = [
-            self::METRIC_SOURCE_DOCTRINE,
-            self::METRIC_SOURCE_SERVICE,
-            self::METRIC_SOURCE_COMPOSITE,
-        ];
+    private const ID_PREFIX = 'lamoda_metric.metric_source.';
 
-    const METRIC_SOURCE_COMPOSITE = 'composite';
-    const METRIC_SOURCE_SERVICE = 'service';
-    const METRIC_SOURCE_DOCTRINE = 'doctrine';
+    private const METRIC_SOURCE_COMPOSITE = 'composite';
+    private const METRIC_SOURCE_SERVICE = 'service';
+    private const METRIC_SOURCE_DOCTRINE = 'doctrine';
+    private const METRIC_SOURCE_STORAGE = 'storage';
 
     public static function register(ContainerBuilder $container, string $name, array $config)
     {
@@ -39,6 +40,13 @@ final class Source
                 break;
             case static::METRIC_SOURCE_DOCTRINE:
                 static::createDoctrineMetricDefinition($container, $name, $config);
+                break;
+            case static::METRIC_SOURCE_STORAGE:
+                static::createServiceMetricDefinition(
+                    $container,
+                    $name,
+                    ['id' => Storage::createId($config['storage'])]
+                );
                 break;
             default:
                 throw new \InvalidArgumentException('Invalid metric source type: ' . $config['type']);

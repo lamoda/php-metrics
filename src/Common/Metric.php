@@ -6,7 +6,7 @@ final class Metric implements MetricInterface
 {
     /** @var string */
     private $name;
-    /** @var float|iterable|MetricInterface[]|\Traversable */
+    /** @var float */
     private $value;
     /** @var string[] */
     private $tags;

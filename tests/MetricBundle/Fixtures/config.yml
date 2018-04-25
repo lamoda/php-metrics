@@ -30,23 +30,16 @@ services:
     alias: Lamoda\MetricStorage\MetricAdjusterInterface
     public: true
 
-  test.metric_driver:
-    class: Lamoda\Metric\Adapters\Tests\Doctrine\MetricDriver
+  test.doctrine_metric_storage:
+    class: Lamoda\Metric\MetricBundle\Tests\Fixtures\Storage\MetricStorage
     arguments:
-    - "@doctrine.orm.entity_manager"
-
-  test.receiver:
-    class: Lamoda\Metric\Adapters\Doctrine\DoctrineReceiver
-    arguments:
-    - "@doctrine.orm.entity_manager"
-    - "@test.metric_driver"
+     - "@doctrine"
 
 lamoda_metrics:
   sources:
     doctrine_entity_source:
-      type: doctrine
-      entity: Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric
-      storage: true
+      type: storage
+      storage: doctrine
     composite_source:
       type: composite
       metrics:
@@ -54,51 +47,47 @@ lamoda_metrics:
        - custom_metric_for_composite
 
   collectors:
-    multiple_sources:
-      type: sources
-      sources:
-        - doctrine_entity_source
-      metric_services:
-        - custom_tagged_metric
-      tags: {type: doctrine_group}
-
-    persisted_collector:
+    raw_sources:
       type: sources
       sources:
         - composite_source
-      tags: {type: custom}
+      metric_services:
+        - custom_tagged_metric
+      default_tags: {collector: raw}
 
-    merging:
-      type: merge
-      collectors:
-      - multiple_sources
-      - persisted_collector
+    doctrine:
+      type: sources
+      sources:
+        - doctrine_entity_source
+      default_tags: {collector: doctrine}
 
-  receivers:
-    doctrine: test.receiver
+  storages:
+    doctrine: test.doctrine_metric_storage
 
   responders:
     telegraf_json:
       enabled: true
-      collector: merging
+      collector: raw_sources
       format_options:
-        group_by_tag: type
+        group_by_tags:
+        - type
         propagate_tags:
         - type
 
     custom_telegraf:
       enabled: true
-      collector: merging
+      collector: raw_sources
       response_factory: telegraf_json
       format_options:
-        group_by_tag: type
+        group_by_tags:
+        - type
         propagate_tags:
         - type
       path: /custom_telegraf
 
     prometheus:
       enabled: true
-      collector: merging
+      collector: raw_sources
       format_options:
         prefix: metrics_
       path: /prometheus

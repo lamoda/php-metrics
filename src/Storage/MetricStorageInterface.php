@@ -4,7 +4,7 @@ namespace Lamoda\Metric\Storage;
 
 use Lamoda\Metric\Common\MetricSourceInterface;
 
-interface MetricDriverInterface extends MetricSourceInterface
+interface MetricStorageInterface extends MetricSourceInterface, MetricReceiverInterface
 {
     /**
      * Find metric by name and tags.

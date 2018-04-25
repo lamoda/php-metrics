@@ -2,7 +2,7 @@
 
 namespace Lamoda\Metric\Common;
 
-final class ExtraTagsMetric implements MetricInterface
+final class DefaultTagsMetric implements MetricInterface
 {
     /** @var MetricInterface */
     private $metric;

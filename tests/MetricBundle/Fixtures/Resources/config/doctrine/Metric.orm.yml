@@ -1,2 +1,16 @@
 Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric:
   type: entity
+  id:
+    id:
+      type: guid
+      generator:
+        strategy: UUID
+  uniqueConstraints:
+    metric_key_tags_unique:
+      columns:
+      - name
+      - tags
+  fields:
+    name: { type: string }
+    value: { type: float }
+    tags: { type: array }

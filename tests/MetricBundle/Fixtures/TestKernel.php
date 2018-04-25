@@ -6,7 +6,6 @@ use Doctrine\Bundle\DoctrineBundle\DoctrineBundle;
 use Lamoda\Metric\MetricBundle\LamodaMetricBundle;
 use Symfony\Bundle\FrameworkBundle\FrameworkBundle;
 use Symfony\Component\Config\Loader\LoaderInterface;
-use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpKernel\Kernel;
 
 final class TestKernel extends Kernel

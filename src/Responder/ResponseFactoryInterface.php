@@ -11,7 +11,7 @@ interface ResponseFactoryInterface
      * Create preformatted response from metric source with given metric prefix.
      *
      * @param MetricSourceInterface $source
-     * @param array $options
+     * @param array                 $options
      *
      * @return ResponseInterface
      */
