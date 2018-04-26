@@ -2,73 +2,93 @@
 
 ```yaml
 lamoda_metrics:
-    metrics:
-        sources:
+    sources:
 
-            # Prototype
-            name:
+        # Prototype: Sources also can be configured as services via `lamoda_metrics.source` tag with `alias` attribute
+        name:
+            enabled:              true
 
-                # Type of the source
-                type:                 service # One of "doctrine"; "service"; "composite"
+            # Type of the source
+            type:                 service # One of "doctrine"; "service"; "composite"; "storage"
 
-                # Mark this source as metric storage. Will perform adjustable metrics resolution against it
-                storage:              false
+            # Source service identifier [service]
+            id:                   null
 
-                # Source service identifier
-                id:                   null
+            # Entity class [doctrine]
+            entity:               Lamoda\Metric\Common\MetricInterface
 
-                # Entity class
-                entity:               Lamoda\MetricResponder\MetricInterface
+            # Metric services [composite]
+            metrics:              []
 
-                # Metric services
-                metrics:              []
-    groups:
-        sources:
+            # Storage name [storage]
+            storage:              null
+    response_factories:
 
-            # Prototype
-            name:
+        # Prototype: Response factories also can be configured as services via `lamoda_metrics.response_factory` tag with `alias` attribute
+        name:
+            enabled:              true
 
-                # Type of the source
-                type:                 service # One of "doctrine"; "service"; "merging"
+            # Type of the factory
+            type:                 service # One of "service"
 
-                # Mark this source as metric storage. Will perform adjustable metrics resolution against it
-                storage:              false
-
-                # Service identifier
-                id:                   null
-
-                # Entity class
-                entity:               Lamoda\MetricResponder\MetricGroupInterface
-
-                # Group services
-                groups:               []
-        custom:
-
-            # Prototype
-            name:
-
-                # Group tags
-                tags:                 []
-
-                # Mark this source as metric storage. Will perform adjustable metrics resolution against it
-                storage:              false
-
-                # Metric source names or service ids
-                metric_sources:       []
-
-                # Additional metric services for this group (also populated with tag)
-                metric_services:      []
+            # Response factory service identifier [service]
+            id:                   null
     responders:
 
         # Prototype
         name:
-            enabled:              false
+            enabled:              true
 
-            # Responder route path
-            path:                 null # Example: "/telegraf". Defaults to "/$name"
+            # Responder route path. Defaults to /$name
+            path:                 null # Example: /prometheus
 
-            # Response factory service ID
-            response_factory:     null # Example: lamoda_metrics.response_factory.telegraf. Defaults to "lamoda_metrics.response_factory.$name"
+            # Formatter options
+            format_options:
+
+                # Metrics prefix for responder
+                prefix:               '' # Example: project_name_
+
+                # Propagate tags to group [telegraf_json]
+                propagate_tags:       []
+
+                # Arrange metrics to groups according to tag value. Tag name goes to group name [telegraf_json]
+                group_by_tags:        []
+
+            # Response factory alias
+            response_factory:     null # Example: prometheus
+
+            # Collector alias
+            collector:            ~ # Required
+    storages:
+
+        # Prototype: Storages also can be configured as services via `lamoda_metrics.storage` tag with `alias` attribute
+        name:
+            enabled:              true
+
+            # Storage service ID [service]
+            id:                   ~ # Example: Lamoda\Metric\Storage\MetricStorageInterface
+
+            # Type of the storage
+            type:                 service # One of "service"
+
+            # Configure storage as default metric mutator
+            mutator:              false
+    collectors:
+
+        # Prototype: Collectors also can be configured as services via `lamoda_metrics.collector` tag with `alias` attribute
+        name:
+            enabled:              true
+
+            # Collector service ID
+            id:                   null # Example: Lamoda\Metric\Collector\MetricCollectorInterface
+
+            # Type of the collector
+            type:                 service # One of "service"; "sources"; "merge"
+            collectors:           []
             sources:              []
-            groups:               []
+            metric_services:      []
+
+            # Default tag values for metrics from this collector
+            default_tags:         []
+
 ```

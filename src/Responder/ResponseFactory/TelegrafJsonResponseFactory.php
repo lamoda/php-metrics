@@ -104,20 +104,21 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
         }
 
         // Wip on matrix grouping
-        $tags = $options['group_by_tags'];
-        $tag = array_shift($tags);
-
-        $otherGroup = [];
-
+        $tags = (array) $options['group_by_tags'];
         foreach ($source->getMetrics() as $metric) {
-            if (isset($metric->getTags()[$tag])) {
-                $groups[$metric->getTags()[$tag]][] = $metric;
-            } else {
-                $otherGroup[] = $metric;
+            $vector = [];
+            foreach ($tags as $tag) {
+                $vector[] = $metric->getTags()[$tag] ?? '__';
             }
+
+            $groups[$this->createTagVector(...$vector)][] = $metric;
         }
-        $groups[] = $otherGroup;
 
         return array_values($groups);
+    }
+
+    private function createTagVector(string ...$values)
+    {
+        return implode(';', $values);
     }
 }

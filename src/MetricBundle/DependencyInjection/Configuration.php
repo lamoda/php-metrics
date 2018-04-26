@@ -5,11 +5,11 @@ namespace Lamoda\Metric\MetricBundle\DependencyInjection;
 use Lamoda\Metric\Collector\MetricCollectorInterface;
 use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Collector;
+use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFactory;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Storage;
 use Lamoda\Metric\Storage\MetricStorageInterface;
 use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
-use Symfony\Component\Config\Definition\Builder\ScalarNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
@@ -29,7 +29,7 @@ final class Configuration implements ConfigurationInterface
 
         $responseFactories = $root->children()->arrayNode('response_factories');
         $responseFactories->useAttributeAsKey('name', false);
-        $this->createResponseFactory($responseFactories->prototype('scalar'));
+        $this->createResponseFactory($responseFactories->prototype('array'));
 
         $responders = $root->children()->arrayNode('responders');
         $responders->useAttributeAsKey('name', false);
@@ -81,16 +81,28 @@ final class Configuration implements ConfigurationInterface
             ->defaultNull();
     }
 
-    private function createResponseFactory(ScalarNodeDefinition $responseFactory): void
+    private function createResponseFactory(ArrayNodeDefinition $responseFactory): void
     {
         $responseFactory->info(
             'Response factories also can be configured as services via `' . DefinitionFactory\ResponseFactory::TAG . '` tag with `' . DefinitionFactory\ResponseFactory::ALIAS_ATTRIBUTE . '` attribute'
         );
+        $responseFactory->canBeDisabled();
         $responseFactory->beforeNormalization()->ifString()->then(
             function (string $v) {
                 return ['type' => 'service', 'id' => $v];
             }
         );
+        $responseFactory->children()
+            ->enumNode('type')
+            ->cannotBeEmpty()
+            ->defaultValue('service')
+            ->values(ResponseFactory::TYPES)
+            ->info('Type of the factory');
+
+        $responseFactory->children()
+            ->scalarNode('id')
+            ->defaultNull()
+            ->info('Response factory service identifier [service]');
     }
 
     private function createCollector(ArrayNodeDefinition $collector): void

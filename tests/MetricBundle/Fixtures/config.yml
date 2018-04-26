@@ -79,8 +79,7 @@ lamoda_metrics:
       collector: raw_sources
       response_factory: telegraf_json
       format_options:
-        group_by_tags:
-        - type
+        group_by_tags: []
         propagate_tags:
         - type
       path: /custom_telegraf

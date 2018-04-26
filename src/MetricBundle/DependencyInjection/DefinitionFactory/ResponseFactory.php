@@ -10,10 +10,16 @@ use Symfony\Component\DependencyInjection\Reference;
  */
 final class ResponseFactory
 {
-    const TAG = 'lamoda_metrics.response_factory';
-    const ALIAS_ATTRIBUTE = 'alias';
+    public const TAG = 'lamoda_metrics.response_factory';
+    public const ALIAS_ATTRIBUTE = 'alias';
 
-    const ID_PREFIX = 'lamoda_metrics.response_factory.';
+    public const TYPES = [
+        self::FACTORY_TYPE_SERVICE,
+    ];
+
+    private const FACTORY_TYPE_SERVICE = 'service';
+
+    private const ID_PREFIX = 'lamoda_metrics.response_factory.';
 
     public static function createId(string $name): string
     {
@@ -25,7 +31,12 @@ final class ResponseFactory
         return new Reference(self::createId($name));
     }
 
-    public static function register(ContainerBuilder $container, string $name, array $config)
+    public static function register(ContainerBuilder $container, string $name, array $config): void
     {
+        switch ($config['type']) {
+            case self::FACTORY_TYPE_SERVICE:
+                $container->setAlias(self::createId($name), $config['id']);
+                break;
+        }
     }
 }
