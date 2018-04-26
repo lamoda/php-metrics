@@ -44,7 +44,7 @@ final class Storage
 
         if ($config['mutator'] ?? false) {
             $container->setAlias(self::MUTATOR_STORAGE_ID, self::createId($name));
-            $container->getDefinition(self::MUTATOR_ID)->setArgument(0, self::createReference($name));
+            $container->getDefinition(self::MUTATOR_ID)->setArguments([self::createReference($name)]);
         }
 
         $container->getDefinition(self::REGISTRY_ID)->addMethodCall('register', [$name, self::createReference($name)]);
