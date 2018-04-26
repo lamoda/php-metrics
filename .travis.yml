@@ -13,8 +13,6 @@ matrix:
     - php: nightly
   include:
   - php: 7.1
-    env: PACKAGES='symfony/symfony=2.7.*'
-  - php: 7.1
     env: PACKAGES='symfony/symfony=2.8.*'
   - php: 7.1
     env: PACKAGES='symfony/symfony=3.4.*'
