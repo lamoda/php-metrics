@@ -13,13 +13,13 @@ final class MetricMutator implements MetricMutatorInterface
     }
 
     /** {@inheritdoc} */
-    public function adjustMetric(string $name, float $delta, array $tags = []): void
+    public function adjustMetric(float $delta, string $name, array $tags = []): void
     {
         $this->findOrCreateMetric($name, $tags)->adjust($delta);
     }
 
     /** {@inheritdoc} */
-    public function setMetric(string $name, float $value, array $tags = []): void
+    public function setMetric(float $value, string $name, array $tags = []): void
     {
         $this->findOrCreateMetric($name, $tags)->setValue($value);
     }

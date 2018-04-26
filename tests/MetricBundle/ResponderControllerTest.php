@@ -7,8 +7,8 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\SchemaValidator;
 use Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric;
 use Lamoda\Metric\MetricBundle\Tests\Fixtures\TestKernel;
-use Lamoda\Metric\Storage\Exception\MetricStorageException;
 use Lamoda\Metric\Storage\MetricMutatorInterface;
+use Lamoda\Metric\Storage\MetricStorageInterface;
 use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -153,27 +153,28 @@ PROMETHEUS
 
     public function testAdjustableMetrics(): void
     {
-        $this->markTestIncomplete('Adjustable metrics are WIP');
-
         /** @var MetricMutatorInterface $adjuster */
         $adjuster = self::getContainer()->get('test.' . MetricMutatorInterface::class);
+        /** @var MetricStorageInterface $storage */
+        $storage = self::getContainer()->get('test.doctrine_metric_storage');
 
-        self::assertTrue($adjuster->adjustMetric('test_1'));
+        $adjuster->adjustMetric(10, 'test_1', ['tag' => 'value1']);
+        $adjuster->adjustMetric(20, 'test_1', ['tag' => 'value2']);
 
-        /** @var Metric $metric */
-        $metric = $adjuster->getAdjustableMetric('test_1');
+        $metric1 = $storage->findMetric('test_1', ['tag' => 'value1']);
+        $metric2 = $storage->findMetric('test_1', ['tag' => 'value2']);
+        self::assertNotNull($metric1);
+        self::assertNotNull($metric2);
 
-        self::assertNotNull($metric);
-        $metric->adjust(5);
+        self::assertNotSame($metric1, $metric2);
+        self::assertEquals(10, $metric1->resolve());
+        self::assertEquals(20, $metric2->resolve());
 
-        self::$em->clear();
-
-        self::assertFalse($adjuster->hasAdjustableMetric('custom_metric'));
-        try {
-            $adjuster->getAdjustableMetric('custom_metric');
-            self::fail('Should throw an exception');
-        } catch (MetricStorageException $exception) {
-        }
+        $adjuster->adjustMetric(30, 'test_1', ['tag' => 'value1']);
+        $metric3 = $storage->findMetric('test_1', ['tag' => 'value1']);
+        self::assertNotNull($metric3);
+        self::assertEquals($metric1, $metric3);
+        self::assertEquals(40, $metric3->resolve());
     }
 
     protected function tearDown()

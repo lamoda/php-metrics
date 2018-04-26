@@ -10,7 +10,7 @@ use Psr\Http\Message\ResponseInterface;
 
 final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
 {
-    const CONTENT_TYPE = 'application/json';
+    private const CONTENT_TYPE = 'application/json';
 
     /** {@inheritdoc} */
     public function create(MetricSourceInterface $source, array $options = []): ResponseInterface

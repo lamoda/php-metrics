@@ -4,8 +4,6 @@ namespace Lamoda\Metric\Responder\ResponseFactory;
 
 use GuzzleHttp\Psr7\Response;
 use Lamoda\Metric\Common\MetricSourceInterface;
-use Lamoda\Metric\Responder\MetricGroupInterface;
-use Lamoda\Metric\Responder\MetricGroupSourceInterface;
 use Lamoda\Metric\Responder\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -16,16 +14,16 @@ use Psr\Http\Message\ResponseInterface;
  */
 final class PrometheusResponseFactory implements ResponseFactoryInterface
 {
-    const FORMAT_LINE = '%s%s %s';
-    const LABELS_ENCLOSURE = '{%s}';
-    const FORMAT_LABEL = '%s="%s"';
-    const GLUE_LABELS = ',';
-    const GLUE_LINES = PHP_EOL;
+    private const FORMAT_LINE = '%s%s %s';
+    private const LABELS_ENCLOSURE = '{%s}';
+    private const FORMAT_LABEL = '%s="%s"';
+    private const GLUE_LABELS = ',';
+    private const GLUE_LINES = PHP_EOL;
 
     /** Not `A-Z`, `0-9` or `_`. */
-    const PATTERN_FILTER_LABEL_NAME = '/\W/';
+    private const PATTERN_FILTER_LABEL_NAME = '/\W/';
 
-    const CONTENT_TYPE = 'text/plain; version=0.0.4';
+    private const CONTENT_TYPE = 'text/plain; version=0.0.4';
 
     /**
      * {@inheritdoc}
@@ -69,13 +67,13 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
     /**
      * Get single line of Prometheus output.
      *
-     * @param string $name
-     * @param array  $tags
-     * @param null   $value
+     * @param string   $name
+     * @param string[] $tags
+     * @param null     $value
      *
      * @return null|string
      */
-    private function getLine(string $name, array $tags, $value = null)
+    private function getLine(string $name, array $tags, $value = null): ?string
     {
         if ($value === null) {
             return null;

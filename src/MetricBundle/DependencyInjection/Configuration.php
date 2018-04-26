@@ -46,11 +46,12 @@ final class Configuration implements ConfigurationInterface
         return $builder;
     }
 
-    private function createSources(ArrayNodeDefinition $source)
+    private function createSources(ArrayNodeDefinition $source): void
     {
         $source->info(
             'Sources also can be configured as services via `' . DefinitionFactory\Source::TAG . '` tag with `' . DefinitionFactory\Source::ALIAS_ATTRIBUTE . '` attribute'
         );
+        $source->canBeDisabled();
         $source->children()
             ->enumNode('type')
             ->cannotBeEmpty()
@@ -80,7 +81,7 @@ final class Configuration implements ConfigurationInterface
             ->defaultNull();
     }
 
-    private function createResponseFactory(ScalarNodeDefinition $responseFactory)
+    private function createResponseFactory(ScalarNodeDefinition $responseFactory): void
     {
         $responseFactory->info(
             'Response factories also can be configured as services via `' . DefinitionFactory\ResponseFactory::TAG . '` tag with `' . DefinitionFactory\ResponseFactory::ALIAS_ATTRIBUTE . '` attribute'
@@ -92,7 +93,7 @@ final class Configuration implements ConfigurationInterface
         );
     }
 
-    private function createCollector(ArrayNodeDefinition $collector)
+    private function createCollector(ArrayNodeDefinition $collector): void
     {
         $collector->info(
             'Collectors also can be configured as services via `' . DefinitionFactory\Collector::TAG . '` tag with `' . DefinitionFactory\Collector::ALIAS_ATTRIBUTE . '` attribute'
@@ -138,7 +139,7 @@ final class Configuration implements ConfigurationInterface
             ->cannotBeEmpty();
     }
 
-    private function createStorage(ArrayNodeDefinition $storage)
+    private function createStorage(ArrayNodeDefinition $storage): void
     {
         $storage->info(
             'Storages also can be configured as services via `' . DefinitionFactory\Storage::TAG . '` tag with `' . DefinitionFactory\Storage::ALIAS_ATTRIBUTE . '` attribute'
@@ -159,9 +160,13 @@ final class Configuration implements ConfigurationInterface
             ->defaultValue('service')
             ->values(Storage::TYPES)
             ->info('Type of the storage');
+        $storage->children()
+            ->booleanNode('mutator')
+            ->defaultFalse()
+            ->info('Configure storage as default metric mutator');
     }
 
-    private function createResponder(ArrayNodeDefinition $responder)
+    private function createResponder(ArrayNodeDefinition $responder): void
     {
         $responder->canBeDisabled();
         $responder->children()->scalarNode('path')

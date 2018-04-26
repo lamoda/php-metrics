@@ -10,7 +10,7 @@ final class StorageRegistry
     /** @var array MetricStorageInterface[] */
     private $storages = [];
 
-    public function register(string $name, MetricStorageInterface $storage)
+    public function register(string $name, MetricStorageInterface $storage): void
     {
         $this->storages[$name] = $storage;
     }

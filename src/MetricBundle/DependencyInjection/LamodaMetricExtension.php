@@ -9,7 +9,6 @@ use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\ResponseFac
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source;
 use Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Storage;
 use Lamoda\Metric\Responder\PsrResponder;
-use Lamoda\Metric\Storage\Decorators\ResolvableMetricSource;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
@@ -37,14 +36,14 @@ final class LamodaMetricExtension extends ConfigurableExtension
         $this->processStorages($container, $mergedConfig['storages'] ?? []);
     }
 
-    private function processFactories(ContainerBuilder $container, array $config)
+    private function processFactories(ContainerBuilder $container, array $config): void
     {
         foreach ($config as $name => $factoryConfig) {
             ResponseFactory::register($container, $name, $factoryConfig);
         }
     }
 
-    private function processCollectors(ContainerBuilder $container, array $config)
+    private function processCollectors(ContainerBuilder $container, array $config): void
     {
         foreach ($config as $name => $collectorConfig) {
             if (!$collectorConfig['enabled']) {
@@ -55,7 +54,7 @@ final class LamodaMetricExtension extends ConfigurableExtension
         }
     }
 
-    private function processStorages(ContainerBuilder $container, array $config)
+    private function processStorages(ContainerBuilder $container, array $config): void
     {
         foreach ($config as $name => $storageConfig) {
             if (!$storageConfig['enabled']) {
@@ -66,27 +65,18 @@ final class LamodaMetricExtension extends ConfigurableExtension
         }
     }
 
-    private function processSources(ContainerBuilder $container, array $sources)
+    private function processSources(ContainerBuilder $container, array $sources): void
     {
-        $resolverDelegate = $container->getDefinition('lamoda_metrics.metric_storage');
-
         foreach ($sources as $name => $sourceConfig) {
-            Source::register($container, $name, $sourceConfig);
-
-            $reference = Source::createReference($name);
-
-            if ($sourceConfig['storage']) {
-                $resolver = $reference;
-                if ($sourceConfig['type'] !== 'doctrine') {
-                    $resolver = new Definition(ResolvableMetricSource::class, [$reference]);
-                }
-
-                $resolverDelegate->addMethodCall('delegate', [$resolver]);
+            if (!$sourceConfig['enabled']) {
+                continue;
             }
+
+            Source::register($container, $name, $sourceConfig);
         }
     }
 
-    private function processResponders(ContainerBuilder $container, array $config)
+    private function processResponders(ContainerBuilder $container, array $config): void
     {
         $routerLoader = $container->getDefinition('lamoda_metrics.route_loader');
 

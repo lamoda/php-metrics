@@ -15,7 +15,7 @@ final class MergingMetricSource implements \IteratorAggregate, MetricSourceInter
     }
 
     /** {@inheritdoc} */
-    public function getIterator()
+    public function getIterator(): \Traversable
     {
         return $this->getMetrics();
     }

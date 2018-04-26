@@ -1,22 +1,15 @@
 services:
-  lamoda_metrics.metric_storage:
-    class: Lamoda\Metric\Storage\DelegatingMetricStorage
+  lamoda_metrics.metric_mutator:
+    class: Lamoda\Metric\Storage\MetricMutator
+    arguments: []
     public: false
 
-  Lamoda\MetricStorage\AdjustableMetricStorageInterface:
-    alias: lamoda_metrics.metric_storage
-
-  lamoda_metrics.metric_adjuster:
-    class: Lamoda\Metric\Storage\MetricAdjuster
-    arguments:
-    - '@Lamoda\MetricStorage\AdjustableMetricStorageInterface'
-    public: false
-
-  Lamoda\MetricStorage\MetricAdjusterInterface:
-    alias: lamoda_metrics.metric_adjuster
+  Lamoda\Metric\Storage\MetricMutatorInterface:
+    alias: lamoda_metrics.metric_mutator
 
   lamoda_metrics.route_loader:
     class: Lamoda\Metric\MetricBundle\Routing\MetricRouteLoader
+    public: false
     tags:
     - { name: routing.loader }
 

@@ -56,6 +56,7 @@ can be retrieved from metric storage for update
   dynamic metric generation - new metric would be stored silently with given value
 
 ## Supplementary terms
+
 * **Collector** is the generic class serving the metric **Source** to other parts of the library
     * **Responder** to render
     * **Storage** receiver to cache them
@@ -72,21 +73,15 @@ and storing it in a resolved form for fast access to some **Storage** (Cache, DB
     * Work as a **Source** of metrics
     * Work as a receiver accepting **Source** to be materialized in it
 
-## Standalone responder usage
+## Usage examples
 
-See [configuration reference](doc/examples/standalone_responder.md)
-
-## Standalone storage usage
-
-See [configuration reference](doc/examples/standalone_storage.md)
-
-## Symfony integration
-
-See [configuration reference](doc/symfony/integration.md)
+* [Standalone responder](doc/examples/standalone_responder.md)
+* [Standalone storage](doc/examples/standalone_storage.md)
+* [Symfony integration](doc/symfony/integration.md)
 
 ## Extending
 
-See [configuration reference](doc/extending.md)
+See [extending chapter](doc/extending.md)
 
 ## Development
 

@@ -22,16 +22,13 @@ services:
     - 2.2
 
   # Make existing service public:
-  test.Lamoda\Metric\Storage\AdjustableMetricStorageInterface:
-    alias: Lamoda\MetricStorage\AdjustableMetricStorageInterface
-    public: true
-
-  test.Lamoda\Metric\Storage\MetricAdjusterInterface:
-    alias: Lamoda\MetricStorage\MetricAdjusterInterface
+  test.Lamoda\Metric\Storage\MetricMutatorInterface:
+    alias: Lamoda\Metric\Storage\MetricMutatorInterface
     public: true
 
   test.doctrine_metric_storage:
     class: Lamoda\Metric\MetricBundle\Tests\Fixtures\Storage\MetricStorage
+    public: true
     arguments:
      - "@doctrine"
 
@@ -62,7 +59,10 @@ lamoda_metrics:
       default_tags: {collector: doctrine}
 
   storages:
-    doctrine: test.doctrine_metric_storage
+    doctrine:
+      type: service
+      mutator: true
+      id: test.doctrine_metric_storage
 
   responders:
     telegraf_json:
