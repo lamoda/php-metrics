@@ -3,11 +3,13 @@
 namespace Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory;
 
 use Lamoda\Metric\Collector\MergingCollector;
-use Lamoda\Metric\Collector\SingeSourceCollector;
+use Lamoda\Metric\Collector\SingleSourceCollector;
+use Lamoda\Metric\Collector\TaggingCollectorDecorator;
 use Lamoda\Metric\Common\Source\IterableMetricSource;
 use Lamoda\Metric\Common\Source\MergingMetricSource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
+use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**
@@ -54,6 +56,14 @@ final class Collector
                 break;
         }
 
+        if (!empty($config['default_tags'])) {
+            $decoratorId = self::createId($name) . '.default_tags';
+
+            $container->register($decoratorId, TaggingCollectorDecorator::class)
+                ->setDecoratedService(self::createId($name))
+                ->setArguments([new Reference($decoratorId . '.inner'), $config['default_tags']]);
+        }
+
         $registry = $container->getDefinition(Collector::REGISTRY_ID);
         $registry->addMethodCall('register', [$name, self::createReference($name)]);
     }
@@ -73,7 +83,7 @@ final class Collector
 
     private static function registerPreconfigured(ContainerBuilder $container, string $name, array $config)
     {
-        $definition = $container->register(self::createId($name), SingeSourceCollector::class);
+        $definition = $container->register(self::createId($name), SingleSourceCollector::class);
         $sources = [];
         foreach ($config['sources'] as $sourceAlias) {
             $sources[] = Source::createReference($sourceAlias);
@@ -88,7 +98,7 @@ final class Collector
         }
 
         $definition->setArguments(
-            [new Definition(MergingMetricSource::class, $sources), $config['default_tags'] ?? []]
+            [new Definition(MergingMetricSource::class, $sources)]
         );
     }
 }

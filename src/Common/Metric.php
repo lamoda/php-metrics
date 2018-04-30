@@ -2,7 +2,9 @@
 
 namespace Lamoda\Metric\Common;
 
-final class Metric implements MetricInterface
+use Lamoda\Metric\Storage\MutableMetricInterface;
+
+final class Metric implements MutableMetricInterface
 {
     /** @var string */
     private $name;
@@ -41,5 +43,17 @@ final class Metric implements MetricInterface
     public function getTags(): array
     {
         return $this->tags;
+    }
+
+    /** {@inheritdoc} */
+    public function adjust(float $delta): void
+    {
+        $this->value += $delta;
+    }
+
+    /** {@inheritdoc} */
+    public function setValue(float $value): void
+    {
+        $this->value = $value;
     }
 }

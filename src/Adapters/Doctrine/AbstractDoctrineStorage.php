@@ -2,9 +2,7 @@
 
 namespace Lamoda\Metric\Adapters\Doctrine;
 
-use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
-use Doctrine\ORM\QueryBuilder;
 use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Storage\Exception\ReceiverException;
 use Lamoda\Metric\Storage\MetricStorageInterface;
@@ -15,9 +13,9 @@ abstract class AbstractDoctrineStorage implements \IteratorAggregate, MetricStor
     /** @var EntityManagerInterface */
     protected $entityManager;
 
-    public function __construct(ManagerRegistry $registry)
+    public function __construct(EntityManagerInterface $entityManager)
     {
-        $this->entityManager = $this->getEntityManager($registry);
+        $this->entityManager = $entityManager;
     }
 
     final public function getIterator(): \Traversable
@@ -40,15 +38,7 @@ abstract class AbstractDoctrineStorage implements \IteratorAggregate, MetricStor
     }
 
     /** {@inheritdoc} */
-    public function getMetrics(): \Traversable
-    {
-        foreach ($this->createMetricQueryBuilder('metrics')->getQuery()->iterate() as $row) {
-            yield $row[0];
-        }
-    }
-
-    /** {@inheritdoc} */
-    public function findMetric(string $name, array $tags = []): ?MutableMetricInterface
+    final public function findMetric(string $name, array $tags = []): ?MutableMetricInterface
     {
         $metric = $this->doFindMetric($name, $tags);
         if (!$metric) {
@@ -59,7 +49,7 @@ abstract class AbstractDoctrineStorage implements \IteratorAggregate, MetricStor
     }
 
     /** {@inheritdoc} */
-    public function createMetric(string $name, float $value, array $tags = []): MutableMetricInterface
+    final public function createMetric(string $name, float $value, array $tags = []): MutableMetricInterface
     {
         $metric = $this->doCreateMetric($name, $value, $tags);
         $this->entityManager->persist($metric);
@@ -70,10 +60,6 @@ abstract class AbstractDoctrineStorage implements \IteratorAggregate, MetricStor
     abstract protected function doFindMetric(string $name, array $tags = []): ?MutableMetricInterface;
 
     abstract protected function doCreateMetric(string $name, float $value, array $tags = []): MutableMetricInterface;
-
-    abstract protected function getEntityManager(ManagerRegistry $registry): EntityManagerInterface;
-
-    abstract protected function createMetricQueryBuilder(string $alias): QueryBuilder;
 
     /**
      * @param MetricSourceInterface $source

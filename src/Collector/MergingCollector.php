@@ -3,25 +3,15 @@
 namespace Lamoda\Metric\Collector;
 
 use Lamoda\Metric\Common\MetricSourceInterface;
-use Lamoda\Metric\Common\Source\DefaultTaggingMetricSource;
 use Lamoda\Metric\Common\Source\MergingMetricSource;
 
 final class MergingCollector implements MetricCollectorInterface
 {
     /** @var MetricCollectorInterface[] */
     private $collectors;
-    /** @var string[] */
-    private $tags;
 
-    /**
-     * MergingCollector constructor.
-     *
-     * @param string[]                   $tags
-     * @param MetricCollectorInterface[] $collectors
-     */
-    public function __construct(array $collectors, array $tags)
+    public function __construct(array $collectors)
     {
-        $this->tags = $tags;
         $this->collectors = $collectors;
     }
 
@@ -30,7 +20,7 @@ final class MergingCollector implements MetricCollectorInterface
     {
         $sources = [];
         foreach ($this->collectors as $collector) {
-            $sources[] = new DefaultTaggingMetricSource($collector->collect(), $this->tags);
+            $sources[] = $collector->collect();
         }
 
         return new MergingMetricSource(...$sources);

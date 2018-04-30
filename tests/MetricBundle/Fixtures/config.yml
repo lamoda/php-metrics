@@ -30,7 +30,7 @@ services:
     class: Lamoda\Metric\MetricBundle\Tests\Fixtures\Storage\MetricStorage
     public: true
     arguments:
-     - "@doctrine"
+     - "@doctrine.orm.entity_manager"
 
 lamoda_metrics:
   sources:

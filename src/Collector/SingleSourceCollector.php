@@ -3,20 +3,18 @@
 namespace Lamoda\Metric\Collector;
 
 use Lamoda\Metric\Common\MetricSourceInterface;
-use Lamoda\Metric\Common\Source\DefaultTaggingMetricSource;
 
-final class SingeSourceCollector implements MetricCollectorInterface
+final class SingleSourceCollector implements MetricCollectorInterface
 {
     /** @var MetricSourceInterface */
     private $source;
 
     /**
      * @param MetricSourceInterface $source
-     * @param string[]              $tags
      */
-    public function __construct(MetricSourceInterface $source, array $tags = [])
+    public function __construct(MetricSourceInterface $source)
     {
-        $this->source = new DefaultTaggingMetricSource($source, $tags);
+        $this->source = $source;
     }
 
     /** {@inheritdoc} */

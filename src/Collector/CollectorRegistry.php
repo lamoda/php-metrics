@@ -14,7 +14,7 @@ final class CollectorRegistry
      * @param string                   $name
      * @param MetricCollectorInterface $collector
      */
-    public function register(string $name, MetricCollectorInterface $collector)
+    public function register(string $name, MetricCollectorInterface $collector): void
     {
         $this->collectors[$name] = $collector;
     }

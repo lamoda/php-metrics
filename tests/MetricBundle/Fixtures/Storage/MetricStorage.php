@@ -22,18 +22,21 @@ final class MetricStorage extends AbstractDoctrineStorage
             ->setParameter('tags', serialize($tags))->setMaxResults(1)->getQuery()->getOneOrNullResult();
     }
 
+    /** {@inheritdoc} */
+    public function getMetrics(): \Traversable
+    {
+        foreach ($this->createMetricQueryBuilder('metrics')->getQuery()->iterate() as $row) {
+            yield $row[0];
+        }
+    }
+
     protected function doCreateMetric(string $name, float $value, array $tags = []): MutableMetricInterface
     {
         return new Metric($name, $value, $tags);
     }
 
-    protected function createMetricQueryBuilder(string $alias): QueryBuilder
+    private function createMetricQueryBuilder(string $alias): QueryBuilder
     {
         return $this->entityManager->createQueryBuilder()->select($alias)->from(Metric::class, $alias);
-    }
-
-    protected function getEntityManager(ManagerRegistry $registry): EntityManagerInterface
-    {
-        return $registry->getManagerForClass(Metric::class);
     }
 }
