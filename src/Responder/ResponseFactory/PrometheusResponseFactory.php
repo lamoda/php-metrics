@@ -8,9 +8,7 @@ use Lamoda\Metric\Responder\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
- * Converts metrics for Prometheus response.
- *
- * @see PrometheusResponseFactory
+ * Creates Prometheus formatted metrics response.
  */
 final class PrometheusResponseFactory implements ResponseFactoryInterface
 {
@@ -69,16 +67,12 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
      *
      * @param string   $name
      * @param string[] $tags
-     * @param null     $value
+     * @param float    $value
      *
-     * @return null|string
+     * @return string
      */
-    private function getLine(string $name, array $tags, $value = null): ?string
+    private function getLine(string $name, array $tags, float $value): string
     {
-        if ($value === null) {
-            return null;
-        }
-
         return sprintf(self::FORMAT_LINE, $name, $this->formatLabels($tags), $value);
     }
 

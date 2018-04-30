@@ -6,6 +6,9 @@ use Lamoda\Metric\Collector\CollectorRegistry;
 use Lamoda\Metric\Collector\MetricCollectorInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \Lamoda\Metric\Collector\CollectorRegistry
+ */
 final class CollectorRegistryTest extends TestCase
 {
     public function testRegistryStoresValues(): void

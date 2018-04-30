@@ -34,32 +34,7 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
         );
     }
 
-    /**
-     * Convert metric group to serializable structure.
-     *
-     * @param MetricInterface[] $metrics
-     * @param array             $options
-     *
-     * @return array
-     */
-    private function formatGroup(array $metrics, array $options): array
-    {
-        $groups = $this->doFormat($metrics, $options);
-
-        if (empty($groups)) {
-            return [];
-        }
-
-        return $groups;
-    }
-
-    /**
-     * @param MetricInterface[] $source
-     * @param array             $options
-     *
-     * @return array
-     */
-    private function doFormat(array $source, array $options): array
+    private function formatGroup(array $source, array $options): array
     {
         $result = [];
         $tags = [];
@@ -103,7 +78,6 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
             return $groups;
         }
 
-        // Wip on matrix grouping
         $tags = (array) $options['group_by_tags'];
         foreach ($source->getMetrics() as $metric) {
             $vector = [];

@@ -2,7 +2,9 @@
 
 namespace Lamoda\Metric\Collector;
 
-/** {@inheritdoc} */
+/**
+ * @internal
+ */
 final class CollectorRegistry
 {
     /** @var MetricCollectorInterface[] */

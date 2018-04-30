@@ -9,6 +9,9 @@ use Lamoda\Metric\MetricBundle\DependencyInjection\LamodaMetricExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
+/**
+ * @codeCoverageIgnore
+ */
 final class LamodaMetricBundle extends Bundle
 {
     public function getContainerExtension()

@@ -33,7 +33,7 @@ final class DefaultTaggingMetricSource implements \IteratorAggregate, MetricSour
     /** {@inheritdoc} */
     public function getMetrics(): \Traversable
     {
-        foreach ($this->source->getMetrics() as $metric) {
+        foreach ($this->source as $metric) {
             yield new DefaultTagsMetric($metric, $this->tags);
         }
     }

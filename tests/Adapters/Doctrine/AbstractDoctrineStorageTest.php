@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 
 /**
  * @covers \Lamoda\Metric\Adapters\Doctrine\AbstractDoctrineStorage
+ * @covers \Lamoda\Metric\Storage\Exception\ReceiverException
  */
 final class AbstractDoctrineStorageTest extends TestCase
 {

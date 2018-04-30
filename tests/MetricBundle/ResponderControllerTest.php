@@ -158,8 +158,8 @@ PROMETHEUS
         /** @var MetricStorageInterface $storage */
         $storage = self::getContainer()->get('test.doctrine_metric_storage');
 
-        $adjuster->adjustMetric(10, 'test_1', ['tag' => 'value1']);
-        $adjuster->adjustMetric(20, 'test_1', ['tag' => 'value2']);
+        $adjuster->adjustMetricValue(10, 'test_1', ['tag' => 'value1']);
+        $adjuster->adjustMetricValue(20, 'test_1', ['tag' => 'value2']);
 
         $metric1 = $storage->findMetric('test_1', ['tag' => 'value1']);
         $metric2 = $storage->findMetric('test_1', ['tag' => 'value2']);
@@ -170,7 +170,7 @@ PROMETHEUS
         self::assertEquals(10, $metric1->resolve());
         self::assertEquals(20, $metric2->resolve());
 
-        $adjuster->adjustMetric(30, 'test_1', ['tag' => 'value1']);
+        $adjuster->adjustMetricValue(30, 'test_1', ['tag' => 'value1']);
         $metric3 = $storage->findMetric('test_1', ['tag' => 'value1']);
         self::assertNotNull($metric3);
         self::assertEquals($metric1, $metric3);

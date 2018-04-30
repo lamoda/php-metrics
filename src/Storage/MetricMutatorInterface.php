@@ -15,7 +15,7 @@ interface MetricMutatorInterface
      *
      * @throws MetricStorageException
      */
-    public function adjustMetric(float $delta, string $name, array $tags = []): void;
+    public function adjustMetricValue(float $delta, string $name, array $tags = []): void;
 
     /**
      * Set metric absolute value.
@@ -24,5 +24,5 @@ interface MetricMutatorInterface
      * @param float    $value
      * @param string[] $tags
      */
-    public function setMetric(float $value, string $name, array $tags = []): void;
+    public function setMetricValue(float $value, string $name, array $tags = []): void;
 }
