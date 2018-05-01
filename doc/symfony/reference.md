@@ -9,7 +9,7 @@ lamoda_metrics:
             enabled:              true
 
             # Type of the source
-            type:                 service # One of "doctrine"; "service"; "composite"; "storage"
+            type:                 service # One of "service"; "composite"; "storage"
 
             # Source service identifier [service]
             id:                   null

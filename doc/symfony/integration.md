@@ -16,56 +16,94 @@ Configure kernel class
     
 ```
 
-In general you do not have to use `FrameworkBundle`, but then you'll have to deal with routing by yourself.
+In general you do not have to use `FrameworkBundle`, but then you'll have to deal 
+with routing of metric responders by yourself.
 
+Configure some metrics:
+```yaml
+services:
+  custom_tagged_metric:
+    class: Lamoda\Metric\Common\Metric
+    arguments:
+    - "tagged_metric"
+    - 2.0
+    - [{ name: lamoda_telegraf_metric, group: heartbeat }]
 
-Configure some metrics and groups
+  custom_metric:
+    class: Lamoda\Metric\Common\Metric
+    arguments:
+    - "custom_metric"
+    - 1.0
+
+  custom_metric_for_composite:
+    class: Lamoda\Metric\Common\Metric
+    arguments:
+    - "custom_metric_for_composite"
+    - 2.2
+```
+
+Configure bundle (sample from tests):
 
 ```yaml
 lamoda_metrics:
-  metrics:
-    sources:
-      my_custom_metric_entity:
-        type: doctrine
-        entity: Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric
-        storage: true
-      composite:
-        type: composite
-        metrics:
-        - custom_metric
+  sources:
+    doctrine_entity_source:
+      type: storage
+      storage: doctrine
+    composite_source:
+      type: composite
+      metrics:
+       - custom_metric
+       - custom_metric_for_composite
 
-  groups:
-    sources:
-      doctrine_entity_source:
-        type: doctrine
-        entity: Lamoda\MetricBundle\Tests\Fixtures\Entity\MetricGroup
-    custom:
-      my_custom_group:
-        tags: {type: custom}
-        metric_sources:
-          - my_custom_metric_entity
-          - composite
-        metric_services:
-          - custom_metric
-      heartbeat:
-        tags: {type: heartbeat}
+  collectors:
+    raw_sources:
+      type: sources
+      sources:
+        - composite_source
+      metric_services:
+        - custom_tagged_metric
+      default_tags: {collector: raw}
+
+    doctrine:
+      type: sources
+      sources:
+        - doctrine_entity_source
+      default_tags: {collector: doctrine}
+
+  storages:
+    doctrine:
+      type: service
+      mutator: true
+      id: test.doctrine_metric_storage
 
   responders:
-    telegraf:
+    telegraf_json:
       enabled: true
-      groups:
-      - my_custom_group
-      sources:
-      - doctrine_entity_source
+      collector: raw_sources
+      format_options:
+        group_by_tags:
+        - type
+        propagate_tags:
+        - type
+
     custom_telegraf:
       enabled: true
-      response_factory: lamoda_metrics.response_factory.json
-      normalizer: lamoda_metrics.normalizer.telegraf
+      collector: raw_sources
+      response_factory: telegraf_json
+      format_options:
+        group_by_tags: []
+        propagate_tags:
+        - type
       path: /custom_telegraf
-      groups:
-      - my_custom_group
-      sources:
-      - doctrine_entity_source
+
+    prometheus:
+      enabled: true
+      collector: raw_sources
+      format_options:
+        prefix: metrics_
+      path: /prometheus
+
 ```
 
 Configure routing
@@ -74,55 +112,6 @@ _lamoda_metrics:
   resource: .
   type: lamoda_metrics
   prefix: /metrics/
-```
-
-### Storage usage example
-
-For Doctrine2-driven storage you can create a decorator by extending `AbstractDoctrineMetricStorage` passing the 
-original storage and `ObjectManager` interface in order to automatically create new metrics
-
-```php
-<?php
-
-use Lamoda\MetricInfra\Doctrine\AbstractDoctrineMetricStorage;
-use Lamoda\MetricStorage\AdjustableMetricInterface;
-
-final class DoctrineMetricStorage extends AbstractDoctrineMetricStorage
-{
-    /**
-     * {@inheritdoc}
-     */
-    protected function instantiateEmptyMetric(string $key): AdjustableMetricInterface
-    {
-        return new Metric($key, 0);
-    }
-}
-```
-
-You can decorate concrete Doctrine storage delegate or the whole `lamoda_metrics.metric_storage` service
-
-```yaml
-services:
-    app.metric_storage:
-        class: AppBundle\Monitoring\DoctrineMetricStorage
-        public: false
-        decorates: 'lamoda_metrics.metric_storage'
-        arguments:
-            - '@app.metric_storage.inner'
-            - "@doctrine.orm.sidecar_entity_manager"
-```
-
-You can mark any custom source to work as storage by marking it with `storage: true` config option. 
-This will automatically decorate source with iterator introspecting decorator.
-
-```yaml
-lamoda_metrics:
-  metrics:
-    sources:
-      my_custom_metric_entity:
-        type: doctrine
-        entity: Lamoda\MetricBundle\Tests\Fixtures\Entity\Metric
-        storage: true
 ```
 
 ### Configuration

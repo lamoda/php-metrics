@@ -2,12 +2,12 @@
 
 namespace Lamoda\Metric\Storage\Tests;
 
-use Lamoda\Metric\Storage\MetricMutator;
+use Lamoda\Metric\Storage\StoredMetricMutator;
 use Lamoda\Metric\Storage\MetricStorageInterface;
 use Lamoda\Metric\Storage\MutableMetricInterface;
 use PHPUnit\Framework\TestCase;
 
-final class MetricMutatorTest extends TestCase
+final class StoredMetricMutatorTest extends TestCase
 {
     private const TAG = ['tag' => 'value'];
     private const NAME = 'test';
@@ -23,7 +23,7 @@ final class MetricMutatorTest extends TestCase
 
         $metric->expects($this->once())->method('adjust')->with(5.0);
 
-        $mutator = new MetricMutator($storage);
+        $mutator = new StoredMetricMutator($storage);
         $mutator->adjustMetricValue(5.0, self::NAME, self::TAG);
     }
 
@@ -41,7 +41,7 @@ final class MetricMutatorTest extends TestCase
 
         $metric->expects($this->once())->method('adjust')->with(5.0);
 
-        $mutator = new MetricMutator($storage);
+        $mutator = new StoredMetricMutator($storage);
         $mutator->adjustMetricValue(5.0, self::NAME, self::TAG);
     }
 
@@ -56,7 +56,7 @@ final class MetricMutatorTest extends TestCase
 
         $metric->expects($this->once())->method('setValue')->with(5.0);
 
-        $mutator = new MetricMutator($storage);
+        $mutator = new StoredMetricMutator($storage);
         $mutator->setMetricValue(5.0, self::NAME, self::TAG);
     }
 
@@ -74,7 +74,7 @@ final class MetricMutatorTest extends TestCase
 
         $metric->expects($this->once())->method('setValue')->with(5.0);
 
-        $mutator = new MetricMutator($storage);
+        $mutator = new StoredMetricMutator($storage);
         $mutator->setMetricValue(5.0, self::NAME, self::TAG);
     }
 }

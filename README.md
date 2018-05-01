@@ -75,8 +75,8 @@ and storing it in a resolved form for fast access to some **Storage** (Cache, DB
 
 ## Usage examples
 
-* [Standalone responder](doc/examples/standalone_responder.md)
-* [Standalone storage](doc/examples/standalone_storage.md)
+* [Standalone responder](doc/examples/03_respond.md)
+* [Standalone storage](doc/examples/02_store.md)
 * [Symfony integration](doc/symfony/integration.md)
 
 ## Extending

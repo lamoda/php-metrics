@@ -2,7 +2,7 @@
 
 namespace Lamoda\Metric\Storage;
 
-final class MetricMutator implements MetricMutatorInterface
+final class StoredMetricMutator implements MetricMutatorInterface
 {
     /** @var MetricStorageInterface */
     private $storage;

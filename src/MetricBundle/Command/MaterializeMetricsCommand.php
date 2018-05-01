@@ -2,48 +2,52 @@
 
 namespace Lamoda\Metric\MetricBundle\Command;
 
-use Lamoda\Metric\Collector\CollectorRegistry;
-use Lamoda\Metric\Common\Metric;
-use Lamoda\Metric\Common\Source\IterableMetricSource;
-use Lamoda\Metric\Storage\StorageRegistry;
+use Lamoda\Metric\Storage\Exception\ReceiverException;
+use Lamoda\Metric\Storage\MaterializeHelper;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class MaterializeMetricsCommand extends Command
 {
     protected static $defaultName = 'metrics:materialize';
 
-    /** @var CollectorRegistry */
-    private $collectorRegistry;
-    /** @var StorageRegistry */
-    private $storageRegistry;
+    /**
+     * @var MaterializeHelper
+     */
+    private $helper;
 
-    public function __construct(CollectorRegistry $collectorRegistry, StorageRegistry $storageRegistry)
+    public function __construct(MaterializeHelper $helper)
     {
         parent::__construct();
-        $this->collectorRegistry = $collectorRegistry;
-        $this->storageRegistry = $storageRegistry;
+        $this->helper = $helper;
     }
 
-    protected function configure()
+    protected function configure(): void
     {
         $this->addArgument('collector', InputArgument::REQUIRED, 'Collector name from configuration');
         $this->addArgument('storage', InputArgument::REQUIRED, 'Storage name from configuration');
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): ?int
     {
-        $collector = $this->collectorRegistry->getCollector($input->getArgument('collector'));
-        $storage = $this->storageRegistry->getStorage($input->getArgument('storage'));
+        $io = new SymfonyStyle($input, $output);
 
-        $metrics = [];
-        foreach ($collector->collect()->getMetrics() as $metric) {
-            $metrics[] = new Metric($metric->getName(), $metric->resolve(), $metric->getTags());
+        $collector = $input->getArgument('collector');
+        $storage = $input->getArgument('storage');
+
+        try {
+            $this->helper->materialize($collector, $storage);
+
+            return 0;
+        } catch (\OutOfBoundsException $exception) {
+            $io->error('Invalid argument supplied');
+        } catch (ReceiverException $exception) {
+            $io->error('Failed to receive metrics in storage: ' . $exception->getMessage());
         }
-        $newSource = new IterableMetricSource($metrics);
 
-        $storage->receive($newSource);
+        return -1;
     }
 }
