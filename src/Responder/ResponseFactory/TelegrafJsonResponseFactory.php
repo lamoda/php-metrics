@@ -37,8 +37,6 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
     private function formatGroup(array $source, array $options): array
     {
         $result = [];
-        $tags = [];
-        $propagatedTags = $options['propagate_tags'] ?? null;
         $prefix = $options['prefix'] ?? '';
 
         foreach ($source as $metric) {
@@ -48,19 +46,29 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
             }
 
             $result[$prefix . $metric->getName()] = $value;
-
-            foreach ($metric->getTags() as $tag => $value) {
-                if ($propagatedTags && \in_array($tag, $propagatedTags, true)) {
-                    $tags[$tag] = (string) $value;
-                }
-            }
         }
 
-        foreach ($tags as $tag => $value) {
-            $result[$tag] = $value;
+        if (!empty($options['propagate_tags'])) {
+            $this->propagateTags($result, $source, $options['propagate_tags']);
         }
 
         return $result;
+    }
+
+    /**
+     * @param array             $result
+     * @param MetricInterface[] $source
+     * @param string[]          $propagatedTags
+     */
+    private function propagateTags(array &$result, array $source, array $propagatedTags): void
+    {
+        foreach ($source as $metric) {
+            foreach ($metric->getTags() as $tag => $value) {
+                if (\in_array($tag, $propagatedTags, true)) {
+                    $result[$tag] = (string) $value;
+                }
+            }
+        }
     }
 
     /**
