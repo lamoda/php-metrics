@@ -40,12 +40,7 @@ final class TelegrafJsonResponseFactory implements ResponseFactoryInterface
         $prefix = $options['prefix'] ?? '';
 
         foreach ($source as $metric) {
-            $value = $metric->resolve();
-            if (is_numeric($value)) {
-                $value = (float) $value;
-            }
-
-            $result[$prefix . $metric->getName()] = $value;
+            $result[$prefix . $metric->getName()] = $metric->resolve();
         }
 
         if (!empty($options['propagate_tags'])) {
