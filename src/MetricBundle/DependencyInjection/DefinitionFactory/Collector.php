@@ -9,7 +9,6 @@ use Lamoda\Metric\Common\Source\IterableMetricSource;
 use Lamoda\Metric\Common\Source\MergingMetricSource;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
-use Symfony\Component\DependencyInjection\DefinitionDecorator;
 use Symfony\Component\DependencyInjection\Reference;
 
 /**

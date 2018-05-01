@@ -7,7 +7,7 @@ use Lamoda\Metric\Common\MetricSourceInterface;
 
 final class IterableMetricSource implements \IteratorAggregate, MetricSourceInterface
 {
-    /** @var MetricInterface[]|\Traversable */
+    /** @var MetricInterface[]|\Traversable|iterable */
     private $metrics;
 
     /**
@@ -15,7 +15,7 @@ final class IterableMetricSource implements \IteratorAggregate, MetricSourceInte
      */
     public function __construct(iterable $metrics)
     {
-        if (!$metrics instanceof \Traversable) {
+        if (\is_array($metrics)) {
             $metrics = new \ArrayIterator($metrics);
         }
 

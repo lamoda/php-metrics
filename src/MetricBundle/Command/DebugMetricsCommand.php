@@ -3,7 +3,6 @@
 namespace Lamoda\Metric\MetricBundle\Command;
 
 use Lamoda\Metric\Collector\CollectorRegistry;
-use Lamoda\Metric\Responder\ResponderMetricSourceRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Input\InputArgument;

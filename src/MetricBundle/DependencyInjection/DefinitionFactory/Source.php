@@ -2,7 +2,6 @@
 
 namespace Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory;
 
-use Lamoda\Metric\Adapters\Doctrine\DoctrineMetricSource;
 use Lamoda\Metric\Common\Source\IterableMetricSource;
 use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -16,7 +15,6 @@ final class Source
     public const ALIAS_ATTRIBUTE = 'alias';
 
     public const METRIC_SOURCE_TYPES = [
-        self::METRIC_SOURCE_DOCTRINE,
         self::METRIC_SOURCE_SERVICE,
         self::METRIC_SOURCE_COMPOSITE,
         self::METRIC_SOURCE_STORAGE,
@@ -26,7 +24,6 @@ final class Source
 
     private const METRIC_SOURCE_COMPOSITE = 'composite';
     private const METRIC_SOURCE_SERVICE = 'service';
-    private const METRIC_SOURCE_DOCTRINE = 'doctrine';
     private const METRIC_SOURCE_STORAGE = 'storage';
 
     public static function register(ContainerBuilder $container, string $name, array $config)
@@ -37,9 +34,6 @@ final class Source
                 break;
             case static::METRIC_SOURCE_SERVICE:
                 static::createServiceMetricDefinition($container, $name, $config);
-                break;
-            case static::METRIC_SOURCE_DOCTRINE:
-                static::createDoctrineMetricDefinition($container, $name, $config);
                 break;
             case static::METRIC_SOURCE_STORAGE:
                 static::createServiceMetricDefinition(
@@ -90,30 +84,5 @@ final class Source
         }
 
         $container->setDefinition(self::createId($name), $definition);
-    }
-
-    /**
-     * @param array $config
-     *
-     * @return Definition
-     *
-     * @throws \InvalidArgumentException
-     */
-    private static function createDoctrineMetricDefinition(ContainerBuilder $container, string $name, array $config)
-    {
-        if (!array_key_exists('entity', $config) || !is_string($config['entity'])) {
-            throw new \InvalidArgumentException('`entity` key should be configured for doctrine source');
-        }
-
-        $container->setDefinition(
-            self::createId($name),
-            new Definition(
-                DoctrineMetricSource::class,
-                [
-                    new Reference('doctrine'),
-                    $config['entity'],
-                ]
-            )
-        );
     }
 }
