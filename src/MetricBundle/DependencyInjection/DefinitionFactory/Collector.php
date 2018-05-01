@@ -56,15 +56,10 @@ final class Collector
         }
 
         if (!empty($config['default_tags'])) {
-            $decoratorId = self::createId($name) . '.default_tags';
-
-            $container->register($decoratorId, TaggingCollectorDecorator::class)
-                ->setDecoratedService(self::createId($name))
-                ->setArguments([new Reference($decoratorId . '.inner'), $config['default_tags']]);
+            self::decorateWithDefaultTags($container, $name, $config);
         }
 
-        $registry = $container->getDefinition(Collector::REGISTRY_ID);
-        $registry->addMethodCall('register', [$name, self::createReference($name)]);
+        self::addToRegistry($container, $name);
     }
 
     public static function createReference(string $name): Reference
@@ -99,5 +94,24 @@ final class Collector
         $definition->setArguments(
             [new Definition(MergingMetricSource::class, $sources)]
         );
+    }
+
+    private static function decorateWithDefaultTags(ContainerBuilder $container, string $name, array $config): void
+    {
+        $decoratorId = self::createId($name) . '.default_tags';
+
+        $container->register($decoratorId, TaggingCollectorDecorator::class)
+            ->setDecoratedService(self::createId($name))
+            ->setArguments([new Reference($decoratorId . '.inner'), $config['default_tags']]);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string           $name
+     */
+    private static function addToRegistry(ContainerBuilder $container, string $name): void
+    {
+        $registry = $container->getDefinition(Collector::REGISTRY_ID);
+        $registry->addMethodCall('register', [$name, self::createReference($name)]);
     }
 }

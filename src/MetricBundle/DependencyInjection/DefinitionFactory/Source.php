@@ -79,9 +79,6 @@ final class Source
         }
 
         $definition = new Definition(IterableMetricSource::class, [new Definition(\ArrayIterator::class, [$metrics])]);
-        if (class_exists(IteratorArgument::class)) {
-            $definition = new Definition(IterableMetricSource::class, [new IteratorArgument($metrics)]);
-        }
 
         $container->setDefinition(self::createId($name), $definition);
     }

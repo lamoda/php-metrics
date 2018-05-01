@@ -43,10 +43,28 @@ final class Storage
         }
 
         if ($config['mutator'] ?? false) {
-            $container->setAlias(self::MUTATOR_STORAGE_ID, self::createId($name));
-            $container->getDefinition(self::MUTATOR_ID)->setArguments([self::createReference($name)]);
+            self::registerAsMutator($container, $name);
         }
 
+        self::addToRegistry($container, $name);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string           $name
+     */
+    private static function addToRegistry(ContainerBuilder $container, string $name): void
+    {
         $container->getDefinition(self::REGISTRY_ID)->addMethodCall('register', [$name, self::createReference($name)]);
+    }
+
+    /**
+     * @param ContainerBuilder $container
+     * @param string           $name
+     */
+    private static function registerAsMutator(ContainerBuilder $container, string $name): void
+    {
+        $container->setAlias(self::MUTATOR_STORAGE_ID, self::createId($name));
+        $container->getDefinition(self::MUTATOR_ID)->setArguments([self::createReference($name)]);
     }
 }
