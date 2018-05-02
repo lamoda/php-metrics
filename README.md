@@ -2,14 +2,11 @@
 
 ## Features
 
-* Metric responder with grouping and lazy sourcing
-* Multiple metric sources
-  * Doctrine2 ORM source out of the box
-* Multiple metric formatters
+* Metric responder with lazy sourcing
+* Multiple metric response formats
   * [Telegraf `JSON`](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/httpjson) 
   * [Prometheus exporter](https://prometheus.io/docs/instrumenting/writing_exporters/)
-* Searchable metric storage
-* Symfony bundle [opitonal]
+* Symfony bundle [optional]
 
 ## Installation
 
@@ -18,6 +15,13 @@
 ```sh
 composer require lamoda/metrics:^2.0
 ```
+
+## Usage examples
+
+* [Collecting metrics](doc/examples/01_collect.md)
+* [Storing metrics](doc/examples/02_store.md)
+* [Responding metrics](doc/examples/03_respond.md)
+* [Symfony integration](src/MetricBundle/Resources/docs/integration.md)
 
 ## Main terms
 
@@ -72,12 +76,6 @@ and storing it in a resolved form for fast access to some **Storage** (Cache, DB
     * Find metric by name and tags
     * Work as a **Source** of metrics
     * Work as a receiver accepting **Source** to be materialized in it
-
-## Usage examples
-
-* [Standalone responder](doc/examples/03_respond.md)
-* [Standalone storage](doc/examples/02_store.md)
-* [Symfony integration](doc/symfony/integration.md)
 
 ## Extending
 

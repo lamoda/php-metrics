@@ -1,6 +1,6 @@
 services:
   lamoda_metrics.metric_mutator:
-    class: Lamoda\Metric\Storage\MetricMutator
+    class: Lamoda\Metric\Storage\StoredMetricMutator
     arguments: []
     public: false
 

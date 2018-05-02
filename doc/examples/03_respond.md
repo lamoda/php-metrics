@@ -1,4 +1,4 @@
-# Responding metrics
+# Storageless responding
 
 The general idea of responding is to combine metric collector 
 and metric response formatter in order to create proper response
@@ -8,14 +8,26 @@ So the general example code is:
 
 ```php
 <?php
-// Create sample collector
+
+use Lamoda\Metric\Collector\SingleSourceCollector;
+use Lamoda\Metric\Common\Source\IterableMetricSource;
+use Lamoda\Metric\Common\Metric;
+use Lamoda\Metric\Common\MetricInterface;
+use Lamoda\Metric\Responder\ResponseFactory\TelegrafJsonResponseFactory;
+use Lamoda\Metric\Responder\PsrResponder;
+
 /** @var MetricInterface $metric */
-$metric = new Metric('sample', 241.0, ['tag' => 'value']);
+$metric = new Metric('sample', time(), ['tag' => 'value']);
 // Source is iterable lazy metric source
 $source = new IterableMetricSource([$metric]);
 // You can use your own collector here
 $collector = new SingleSourceCollector($source);
 $formatter = new TelegrafJsonResponseFactory();
 
+$responder = new PsrResponder($collector, $formatter, ['prefix' => 'my_metric_']);
 // We have PSR-7 Response here
-$response = $formatter->create($collector->collect(), ['prefix' => 'my_metric_']);
+$response = $responder->createResponse();
+```
+
+This example illustrates the common approach to the metric responding which 
+performs synchronous metric computation while formatting metric response
