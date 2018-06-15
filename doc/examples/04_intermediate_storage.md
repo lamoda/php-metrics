@@ -33,6 +33,8 @@ $collector = new SingleSourceCollector($source);
 $storage = new ArrayStorage();
 // 3. Materialize collector to the storage
 $storage->receive($collector->collect());
+// At this moment you can persist or cache your collected metrics
+// if the storage driver supports restoring process
 
 // 4. Create new collector with storage as source of metrics
 $responderCollector = new SingleSourceCollector($storage);

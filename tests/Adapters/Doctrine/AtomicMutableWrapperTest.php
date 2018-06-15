@@ -7,6 +7,9 @@ use Lamoda\Metric\Adapters\Doctrine\AtomicMutableWrapper;
 use Lamoda\Metric\Storage\MutableMetricInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \Lamoda\Metric\Adapters\Doctrine\AtomicMutableWrapper
+ */
 final class AtomicMutableWrapperTest extends TestCase
 {
     public function testGenericMethodsAreProxies(): void

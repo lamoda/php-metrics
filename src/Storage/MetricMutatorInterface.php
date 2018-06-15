@@ -2,23 +2,23 @@
 
 namespace Lamoda\Metric\Storage;
 
-use Lamoda\Metric\Storage\Exception\MetricStorageException;
-
 interface MetricMutatorInterface
 {
     /**
      * Adjust given metric.
      *
+     * Creates empty (0) metric if no metric found
+     *
      * @param string   $name
      * @param float    $delta
      * @param string[] $tags
-     *
-     * @throws MetricStorageException
      */
     public function adjustMetricValue(float $delta, string $name, array $tags = []): void;
 
     /**
      * Set metric absolute value.
+     *
+     * Creates empty (0) metric if no metric found
      *
      * @param string   $name
      * @param float    $value

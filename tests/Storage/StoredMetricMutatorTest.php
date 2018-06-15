@@ -7,6 +7,9 @@ use Lamoda\Metric\Storage\MetricStorageInterface;
 use Lamoda\Metric\Storage\MutableMetricInterface;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \Lamoda\Metric\Storage\StoredMetricMutator
+ */
 final class StoredMetricMutatorTest extends TestCase
 {
     private const TAG = ['tag' => 'value'];

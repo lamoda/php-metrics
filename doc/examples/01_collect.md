@@ -11,6 +11,9 @@ So general collector sample would be:
 <?php
 
 $metric = new \Lamoda\Metric\Common\Metric('sample', 1.0, ['tag' => 'value']);
+
+// You can construct your own source from within your collector implementation
+// But for simplicity of the example we just use precreated source
 $source = new \Lamoda\Metric\Common\Source\IterableMetricSource([$metric]);
 $collector = new \Lamoda\Metric\Collector\SingleSourceCollector($source);
 
