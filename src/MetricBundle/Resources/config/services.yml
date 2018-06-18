@@ -29,11 +29,17 @@ services:
     tags:
     - {name: console.command, command: 'metrics:debug'}
 
-  lamoda_metrics.materialize_command:
-    class: Lamoda\Metric\MetricBundle\Command\MaterializeMetricsCommand
+  lamoda_metrics.materialize_helper:
+    class: Lamoda\Metric\Storage\MaterializeHelper
+    public: false
     arguments:
     - "@lamoda_metrics.collector_registry"
     - "@lamoda_metrics.storage_registry"
+
+  lamoda_metrics.materialize_command:
+    class: Lamoda\Metric\MetricBundle\Command\MaterializeMetricsCommand
+    arguments:
+    - '@lamoda_metrics.materialize_helper'
     public: true
     tags:
     - {name: console.command, command: 'metrics:materialize'}
