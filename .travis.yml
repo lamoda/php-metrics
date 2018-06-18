@@ -1,0 +1,27 @@
+language: php
+
+php:
+  - 7.1
+  - 7.2
+  - nightly
+
+sudo: false
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - php: nightly
+  include:
+  - php: 7.1
+    env: PACKAGES='symfony/symfony=2.8.*'
+  - php: 7.1
+    env: PACKAGES='symfony/symfony=3.4.*'
+  - php: 7.1
+    env: PACKAGES='symfony/symfony=4.0.*'
+
+before_install:
+  - travis_retry composer self-update
+
+install:
+  - composer require --no-update ${PACKAGES}
+  - composer --prefer-source install

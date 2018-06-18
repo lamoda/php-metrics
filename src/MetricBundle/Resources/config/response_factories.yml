@@ -1,0 +1,10 @@
+services:
+  lamoda_metrics.response_factory.builtin.telegraf_httpjson:
+    class: Lamoda\Metric\Responder\ResponseFactory\TelegrafJsonResponseFactory
+    tags:
+    - { name: lamoda_metrics.response_factory, alias: telegraf_json }
+
+  lamoda_metrics.response_factory.builtin.prometheus:
+    class: Lamoda\Metric\Responder\ResponseFactory\PrometheusResponseFactory
+    tags:
+    - { name: lamoda_metrics.response_factory, alias: prometheus }

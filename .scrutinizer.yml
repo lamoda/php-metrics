@@ -1,0 +1,12 @@
+build:
+  tests:
+    override:
+      -
+        command: vendor/bin/phpunit --coverage-clover=build/clover.xml
+        coverage:
+          file: build/clover.xml
+          format: php-clover
+
+filter:
+  excluded_paths:
+    - "./tests"
