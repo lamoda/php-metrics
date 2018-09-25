@@ -22,5 +22,5 @@ Common options:
 Built-in formats
  * `TelegrafJsonResponseFactory` (`telegraf_json`) creates telegraf JSON compatible output with the following options
    * `propagate_tags` allows you to display metric tags on the group level. In case of different tag values the one rendered later will win
-   * `group_by_tags` allows you tou create nested groups according to tag value. Usually you want also propagate these tags
+   * `group_by_tags` allows you to create nested groups according to tag value. Usually you want also propagate these tags
  * `PrometheusResponseFactory` (`prometheus`)  creates prometheus compatible output  
