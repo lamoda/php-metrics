@@ -58,6 +58,12 @@ lamoda_metrics:
         - doctrine_entity_source
       default_tags: {collector: doctrine}
 
+    all:
+      type: merge
+      collectors:
+        - doctrine
+        - raw_sources
+
   storages:
     doctrine:
       type: service
