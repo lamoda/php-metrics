@@ -1,10 +1,16 @@
 # Lamoda metric responder
 
+[![Build Status](https://travis-ci.org/lamoda/php-metrics.svg?branch=master)](https://travis-ci.org/lamoda/php-metrics)
+[![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/?branch=master)
+[![Code Coverage](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/?branch=master)
+[![Build Status](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/build.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/build-status/master)
+[![Latest Stable Version](https://poser.pugx.org/lamoda/metrics/v/stable)](https://packagist.org/packages/lamoda/metrics)
+
 ## Features
 
 * Metric responder with lazy sourcing
 * Multiple metric response formats
-  * [Telegraf `JSON`](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/httpjson) 
+  * [Telegraf `JSON`](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/httpjson)
   * [Prometheus exporter](https://prometheus.io/docs/instrumenting/writing_exporters/)
 * Symfony bundle [optional]
 
