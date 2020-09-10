@@ -18,9 +18,9 @@ final class Configuration implements ConfigurationInterface
     /** {@inheritdoc} */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $builder = new TreeBuilder();
+        $builder = new TreeBuilder('lamoda_metrics');
 
-        $root = $builder->root('lamoda_metrics');
+        $root = $builder->getRootNode();
         $root->addDefaultsIfNotSet();
 
         $sources = $root->children()->arrayNode('sources');
