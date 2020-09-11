@@ -18,6 +18,7 @@ jobs:
         - { os: ubuntu-latest, php: 7.2}
         - { os: ubuntu-latest, php: 7.3}
         - { os: ubuntu-latest, php: 7.4}
+        - { os: ubuntu-latest, php: 8.0}
         - { os: ubuntu-latest, php: 7.1, packages: symfony/symfony=3.4.*}
         - { os: ubuntu-latest, php: 7.1, packages: symfony/symfony=4.0.*}
     steps:
