@@ -18,9 +18,15 @@ final class Configuration implements ConfigurationInterface
     /** {@inheritdoc} */
     public function getConfigTreeBuilder(): TreeBuilder
     {
-        $builder = new TreeBuilder();
+        $builder = new TreeBuilder('lamoda_metrics');
 
-        $root = $builder->root('lamoda_metrics');
+        if (method_exists($builder, 'getRootNode')) {
+            $root = $builder->getRootNode();
+        } else {
+            // BC layer for symfony/config 4.1 and older
+            $root = $builder->root('lamoda_metrics');
+        }
+
         $root->addDefaultsIfNotSet();
 
         $sources = $root->children()->arrayNode('sources');
