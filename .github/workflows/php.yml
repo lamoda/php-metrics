@@ -8,18 +8,22 @@ on:
 
 jobs:
   build:
+    name: PHP ${{ matrix.php }} with ${{ matrix.packages }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        php: [7.1, 7.2, 7.3, 7.4]
+        php:
+          - '7.1'
+          - '7.2'
+          - '7.3'
+          - '7.4'
         os: [ ubuntu-latest ]
         include:
-          - php: 7.1
+          - php: '7.1'
             packages: symfony/symfony=3.4.*
-          - php: 7.1
+          - php: '7.1'
             packages: symfony/symfony=4.0.*
-
     steps:
     - uses: actions/checkout@v2
 
