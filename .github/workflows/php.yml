@@ -45,7 +45,7 @@ jobs:
           ${{ runner.os }}-php-
 
     - name: Install dependencies
-      if: steps.composer-cache.outputs.cache-hit != 'true'
+      # if: steps.composer-cache.outputs.cache-hit != 'true'
       run: |
         echo ${PACKAGES}
         composer require --no-update ${PACKAGES}
