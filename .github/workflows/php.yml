@@ -18,7 +18,7 @@ jobs:
           - php: 7.1
             packages: symfony/symfony=3.4.*
           - php: 7.1
-            packages: symfony/symfony=4.0.*'
+            packages: symfony/symfony=4.0.*
 
     steps:
     - uses: actions/checkout@v2
