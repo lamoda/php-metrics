@@ -16,7 +16,9 @@ jobs:
         os: [ ubuntu-latest ]
         include:
           - php: 7.1
-            packages: symfony/symfony=2.8.*
+            packages: symfony/symfony=3.4.*
+          - php: 7.1
+            packages: symfony/symfony=4.0.*'
 
     steps:
     - uses: actions/checkout@v2
