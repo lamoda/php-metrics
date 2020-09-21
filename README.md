@@ -1,6 +1,6 @@
 # Lamoda metric responder
 
-[![Build Status](https://github.com/lamoda/php-metrics/workflows/PHP%20Composer/badge.svg?branch=master)](https://github.com/lamoda/php-metrics/workflows/PHP%20Composer/badge.svg?branch=master)
+[![Build Status](https://github.com/lamoda/php-metrics/workflows/Tests/badge.svg?branch=master)](https://github.com/lamoda/php-metrics/workflows/Tests/badge.svg?branch=master)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/?branch=master)
 [![Build Status](https://scrutinizer-ci.com/g/lamoda/php-metrics/badges/build.png?b=master)](https://scrutinizer-ci.com/g/lamoda/php-metrics/build-status/master)
