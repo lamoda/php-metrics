@@ -1,5 +1,6 @@
 parameters:
   secret: test
+  kernel.project_dir: '%kernel.root_dir%'
 
 framework:
   secret: '%secret%'
