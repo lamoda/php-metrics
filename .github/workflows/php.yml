@@ -59,6 +59,12 @@ jobs:
       env:
         PACKAGES: ${{ matrix.packages}}
 
+    - name: Check codestyle
+      run: |
+        mkdir -p tools/php-cs-fixer
+        composer require --working-dir=tools/php-cs-fixer friendsofphp/php-cs-fixer
+        ./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix --config=.php_cs --dry-run -v --using-cache=no
+
     # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
     # Docs: https://getcomposer.org/doc/articles/scripts.md
 

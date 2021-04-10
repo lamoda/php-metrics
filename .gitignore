@@ -2,6 +2,7 @@
 composer.lock
 vendor/
 .idea
+tools
 
 # CI runtime
 build/
