@@ -22,7 +22,7 @@ final class HttpFoundationResponder
     }
 
     /**
-     * Create HTTP-Kernel response for collected
+     * Create HTTP-Kernel response for collected.
      *
      * @return Response
      *

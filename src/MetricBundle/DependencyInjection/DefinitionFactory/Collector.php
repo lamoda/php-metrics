@@ -72,7 +72,7 @@ final class Collector
         $definition = $container->register(self::createId($name), MergingCollector::class);
         $collectorNames = $config['collectors'];
         $refs = array_map([self::class, 'createReference'], $collectorNames);
-        
+
         $definition->setArguments([$refs, $config['default_tags']]);
     }
 

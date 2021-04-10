@@ -3,7 +3,6 @@
 namespace Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory;
 
 use Lamoda\Metric\Common\Source\IterableMetricSource;
-use Symfony\Component\DependencyInjection\Argument\IteratorArgument;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Reference;
