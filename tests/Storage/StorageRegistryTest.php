@@ -21,13 +21,11 @@ final class StorageRegistryTest extends TestCase
         self::assertSame($mock, $registry->getStorage('test'));
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
     public function testRegistryThrowsExceptionsForUnknownCollector(): void
     {
         $registry = new StorageRegistry();
 
+        $this->expectException(\OutOfBoundsException::class);
         $registry->getStorage('test');
     }
 }

@@ -21,13 +21,11 @@ final class CollectorRegistryTest extends TestCase
         self::assertSame($mock, $registry->getCollector('test'));
     }
 
-    /**
-     * @expectedException \OutOfBoundsException
-     */
     public function testRegistryThrowsExceptionsForUnknownCollector(): void
     {
         $registry = new CollectorRegistry();
 
+        $this->expectException(\OutOfBoundsException::class);
         $registry->getCollector('test');
     }
 }

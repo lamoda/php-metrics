@@ -24,7 +24,7 @@ class PrometheusResponseFactoryTest extends TestCase
 
         $response = (new PrometheusResponseFactory())->create($source);
         $data = (string) $response->getBody();
-        $this->assertContains('text/plain', $response->getHeaderLine('Content-Type'));
+        $this->assertStringContainsString('text/plain', $response->getHeaderLine('Content-Type'));
         $this->assertSame(
             <<<PROMETHEUS
 metrics_orders{country="ru"} 200

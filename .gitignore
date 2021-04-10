@@ -1,6 +1,7 @@
 # Dev
 composer.lock
 vendor/
+.idea
 
 # CI runtime
 build/
