@@ -27,7 +27,7 @@ final class AbstractDoctrineStorageTest extends TestCase
             ]
         );
 
-        $source = $this->getMockBuilder([\IteratorAggregate::class, MetricSourceInterface::class])->getMock();
+        $source = $this->createMock(MetricSourceInterface::class);
         $source->method('getMetrics')->willReturn($metrics);
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -48,7 +48,6 @@ final class AbstractDoctrineStorageTest extends TestCase
 
         $storage = $this->getMockBuilder(AbstractDoctrineStorage::class)
             ->setConstructorArgs([$em])
-            ->setMethods(['doFindMetric', 'doCreateMetric', 'getMetrics'])
             ->getMock();
 
         $storage->expects($this->exactly(2))->method('doFindMetric')
@@ -66,12 +65,9 @@ final class AbstractDoctrineStorageTest extends TestCase
         $storage->receive($source);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testExceptionCallsRollback(): void
     {
-        $source = $this->getMockBuilder([\IteratorAggregate::class, MetricSourceInterface::class])->getMock();
+        $source = $this->createMock(MetricSourceInterface::class);
         $source->method('getMetrics')->willReturn(new \ArrayIterator([new Metric('test', 0)]));
 
         $em = $this->createMock(EntityManagerInterface::class);
@@ -82,20 +78,17 @@ final class AbstractDoctrineStorageTest extends TestCase
 
         $storage = $this->getMockBuilder(AbstractDoctrineStorage::class)
             ->setConstructorArgs([$em])
-            ->setMethods(['doFindMetric', 'doCreateMetric', 'getMetrics'])
             ->getMock();
 
         $storage->expects($this->once())->method('doFindMetric')->willThrowException(new \RuntimeException());
 
+        $this->expectException(\RuntimeException::class);
         $storage->receive($source);
     }
 
     public function testIteratorIsGetMetricsProxy(): void
     {
-        $storage = $this->getMockBuilder(AbstractDoctrineStorage::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['doFindMetric', 'doCreateMetric', 'getMetrics'])
-            ->getMock();
+        $storage = $this->createMock(AbstractDoctrineStorage::class);
 
         $expected = new \ArrayIterator([]);
 

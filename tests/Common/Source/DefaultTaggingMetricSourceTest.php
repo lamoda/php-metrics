@@ -6,6 +6,7 @@ use Lamoda\Metric\Common\Metric;
 use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Common\Source\DefaultTaggingMetricSource;
+use Lamoda\Metric\Tests\Builders\TraversableMetricSourceBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -17,8 +18,7 @@ final class DefaultTaggingMetricSourceTest extends TestCase
     {
         $m1 = new Metric('test_1', 1.0, ['common' => 'value']);
         $m2 = new Metric('test_2', 2.0, ['common' => 'value']);
-        $inner = $this->createMock([\IteratorAggregate::class, MetricSourceInterface::class]);
-        $inner->method('getIterator')->willReturn(new \ArrayIterator([$m1, $m2]));
+        $inner = TraversableMetricSourceBuilder::build([$m1, $m2]);
 
         $source = new DefaultTaggingMetricSource($inner);
         $metrics = iterator_to_array($source);
@@ -38,8 +38,7 @@ final class DefaultTaggingMetricSourceTest extends TestCase
     {
         $m1 = new Metric('test_1', 1.0);
         $m2 = new Metric('test_2', 2.0);
-        $inner = $this->createMock([\IteratorAggregate::class, MetricSourceInterface::class]);
-        $inner->method('getIterator')->willReturn(new \ArrayIterator([$m1, $m2]));
+        $inner = TraversableMetricSourceBuilder::build([$m1, $m2]);
 
         $source = new DefaultTaggingMetricSource($inner, ['extra' => 'value']);
         /** @var MetricInterface[] $metrics */
@@ -53,8 +52,7 @@ final class DefaultTaggingMetricSourceTest extends TestCase
     public function testSourceDoesNotOverrideTags(): void
     {
         $m1 = new Metric('test_1', 1.0, ['tag' => 'value']);
-        $inner = $this->createMock([\IteratorAggregate::class, MetricSourceInterface::class]);
-        $inner->method('getIterator')->willReturn(new \ArrayIterator([$m1]));
+        $inner = TraversableMetricSourceBuilder::build([$m1]);
 
         $source = new DefaultTaggingMetricSource($inner, ['tag' => 'new_value']);
         foreach ($source as $metric) {

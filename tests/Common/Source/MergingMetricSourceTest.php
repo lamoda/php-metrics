@@ -3,8 +3,8 @@
 namespace Lamoda\Metric\Common\Tests\Source;
 
 use Lamoda\Metric\Common\Metric;
-use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Common\Source\MergingMetricSource;
+use Lamoda\Metric\Tests\Builders\TraversableMetricSourceBuilder;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,16 +14,12 @@ final class MergingMetricSourceTest extends TestCase
 {
     public function testMergingMetrics(): void
     {
-        $source1 = $this->createMock([\IteratorAggregate::class, MetricSourceInterface::class]);
         $m1 = new Metric('test_1', 1.0);
         $m2 = new Metric('test_2', 2.0);
-        $source1->method('getMetrics')->willReturn(new \ArrayIterator([$m1, $m2]));
-        $source1->method('getIterator')->willReturn(new \ArrayIterator([$m1, $m2]));
-        $source2 = $this->createMock([\IteratorAggregate::class, MetricSourceInterface::class]);
+        $source1 = TraversableMetricSourceBuilder::build([$m1, $m2]);
         $m3 = new Metric('test_3', 3.0);
         $m4 = new Metric('test_4', 4.0);
-        $source2->method('getMetrics')->willReturn(new \ArrayIterator([$m3, $m4]));
-        $source2->method('getIterator')->willReturn(new \ArrayIterator([$m3, $m4]));
+        $source2 = TraversableMetricSourceBuilder::build([$m3, $m4]);
 
         $source = new MergingMetricSource($source1, $source2);
         $metrics = $source->getMetrics();

@@ -30,7 +30,7 @@ final class TelegrafResponseFactoryTest extends TestCase
                 'group_by_tags' => ['country'],
             ]
         );
-        self::assertContains('application/json', $response->getHeaderLine('Content-Type'));
+        self::assertStringContainsString('application/json', $response->getHeaderLine('Content-Type'));
 
         $data = (string) $response->getBody();
         $this->assertJsonStringEqualsJsonString(
