@@ -11,23 +11,24 @@
     }
   ],
   "require": {
-    "php": "~7.1",
+    "php": "~7.1 || ^8.0",
     "guzzlehttp/psr7": "~1.4"
   },
   "require-dev": {
-    "phpunit/phpunit": "^7.0",
-    "symfony/framework-bundle": "~2.8 || ~3.0 || ~4.0 || ^5.0",
+    "ext-json": "*",
+    "doctrine/common": "^2.4.1 || ^3.0",
+    "doctrine/dbal": "^2.3",
+    "doctrine/doctrine-bundle": "~1.5 || ^2.0",
+    "doctrine/orm": "~2.4",
+    "phpunit/phpunit": "^7.0 || ^8.0 || ^9.0",
     "symfony/browser-kit": "~2.8 || ~3.0 || ~4.0 || ^5.0",
-    "symfony/http-kernel": "~2.8 || ~3.0 || ~4.0 || ^5.0",
-    "symfony/routing": "~2.8 || ~3.0 || ~4.0 || ^5.0",
     "symfony/config": "~2.8 || ~3.0 || ~4.0 || ^5.0",
     "symfony/dependency-injection": "~2.8 || ~3.0 || ~4.0 || ^5.0",
-    "symfony/yaml": "~2.8 || ~3.0 || ~4.0 || ^5.0",
+    "symfony/framework-bundle": "~2.8 || ~3.0 || ~4.0 || ^5.0",
+    "symfony/http-kernel": "~2.8 || ~3.0 || ~4.0 || ^5.0",
+    "symfony/routing": "~2.8 || ~3.0 || ~4.0 || ^5.0",
     "symfony/stopwatch": "~2.8 || ~3.0 || ~4.0 || ^5.0",
-    "doctrine/common": "^2.4.1",
-    "doctrine/dbal": "^2.3",
-    "doctrine/orm": "~2.4",
-    "doctrine/doctrine-bundle": "~1.5"
+    "symfony/yaml": "~2.8 || ~3.0 || ~4.0 || ^5.0"
   },
   "autoload": {
     "psr-4": {
@@ -46,7 +47,11 @@
       "Lamoda\\Metric\\Adapters\\Tests\\": "./tests/Adapters",
       "Lamoda\\Metric\\MetricBundle\\Tests\\": "./tests/MetricBundle",
       "Lamoda\\Metric\\Storage\\Tests\\": "./tests/Storage",
-      "Lamoda\\Metric\\Collector\\Tests\\": "./tests/Collector"
+      "Lamoda\\Metric\\Collector\\Tests\\": "./tests/Collector",
+      "Lamoda\\Metric\\Tests\\Builders\\": "./tests/Builders"
     }
+  },
+  "config": {
+    "sort-packages": true
   }
 }

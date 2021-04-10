@@ -79,7 +79,7 @@ abstract class AbstractMetricBundleTest extends WebTestCase
         );
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $fs = new Filesystem();
         static::$em->close();
@@ -94,7 +94,7 @@ abstract class AbstractMetricBundleTest extends WebTestCase
     /**
      * @throws \Doctrine\ORM\Tools\ToolsException
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         static::$client = static::createClient();
         self::mockDoctrine();
