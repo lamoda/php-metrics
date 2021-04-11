@@ -4,7 +4,6 @@ namespace Lamoda\Metric\Common\Tests\Source;
 
 use Lamoda\Metric\Common\Metric;
 use Lamoda\Metric\Common\MetricInterface;
-use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Common\Source\DefaultTaggingMetricSource;
 use Lamoda\Metric\Tests\Builders\TraversableMetricSourceBuilder;
 use PHPUnit\Framework\TestCase;

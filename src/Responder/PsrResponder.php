@@ -31,7 +31,7 @@ final class PsrResponder
     }
 
     /**
-     * Create PSR-7 HTTP response for collected metrics
+     * Create PSR-7 HTTP response for collected metrics.
      *
      * @return ResponseInterface
      */
