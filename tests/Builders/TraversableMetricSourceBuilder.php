@@ -10,8 +10,7 @@ final class TraversableMetricSourceBuilder
 {
     public static function build(array $metrics): MetricSourceInterface
     {
-        return new class($metrics) implements \IteratorAggregate, MetricSourceInterface
-        {
+        return new class($metrics) implements \IteratorAggregate, MetricSourceInterface {
             /** @var array */
             private $metrics;
 

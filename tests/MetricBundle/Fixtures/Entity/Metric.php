@@ -52,7 +52,7 @@ class Metric implements MutableMetricInterface
         $this->value = $value;
     }
 
-    /** {@internal } */
+    /** {@internal} */
     public function getTags(): array
     {
         return $this->tags;

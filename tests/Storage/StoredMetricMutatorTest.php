@@ -2,9 +2,9 @@
 
 namespace Lamoda\Metric\Storage\Tests;
 
-use Lamoda\Metric\Storage\StoredMetricMutator;
 use Lamoda\Metric\Storage\MetricStorageInterface;
 use Lamoda\Metric\Storage\MutableMetricInterface;
+use Lamoda\Metric\Storage\StoredMetricMutator;
 use PHPUnit\Framework\TestCase;
 
 /**
