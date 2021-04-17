@@ -13,6 +13,7 @@
   * [Telegraf `JSON`](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/httpjson)
   * [Prometheus exporter](https://prometheus.io/docs/instrumenting/writing_exporters/)
 * Symfony bundle [optional]
+* Doctrine and redis/predis integration out of the box
 
 ## Installation
 
