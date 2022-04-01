@@ -1,4 +1,13 @@
 build:
+  nodes:
+    my-tests:
+      environment:
+        php:
+          version: 8.0.1
+          compile_options: '--enable-sigchild --without-pear'
+
+          pecl_extensions:
+            - redis
   tests:
     override:
       -
