@@ -7,6 +7,7 @@ use Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterReceiversPas
 use Lamoda\Metric\MetricBundle\DependencyInjection\Compiler\RegisterResponseFactoriesPass;
 use Lamoda\Metric\MetricBundle\DependencyInjection\LamodaMetricExtension;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Extension\ExtensionInterface;
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 /**
@@ -14,7 +15,7 @@ use Symfony\Component\HttpKernel\Bundle\Bundle;
  */
 final class LamodaMetricBundle extends Bundle
 {
-    public function getContainerExtension()
+    public function getContainerExtension(): ExtensionInterface
     {
         return new LamodaMetricExtension();
     }
