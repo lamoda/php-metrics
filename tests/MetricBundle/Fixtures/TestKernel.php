@@ -11,7 +11,7 @@ use Symfony\Component\HttpKernel\Kernel;
 final class TestKernel extends Kernel
 {
     /** {@inheritdoc} */
-    public function registerBundles()
+    public function registerBundles(): iterable
     {
         return [
             new FrameworkBundle(),
@@ -32,17 +32,17 @@ final class TestKernel extends Kernel
         return __DIR__;
     }
 
-    public function getProjectDir()
+    public function getProjectDir(): string
     {
         return __DIR__;
     }
 
-    public function getCacheDir()
+    public function getCacheDir(): string
     {
         return __DIR__ . '/../../../build/cache';
     }
 
-    public function getLogDir()
+    public function getLogDir(): string
     {
         return __DIR__ . '/../../../build/logs';
     }

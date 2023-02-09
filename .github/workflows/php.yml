@@ -20,7 +20,8 @@ jobs:
         - { os: ubuntu-latest, php: 7.3, experimental: false}
         - { os: ubuntu-latest, php: 7.4, experimental: false}
         - { os: ubuntu-latest, php: 8.0, experimental: false}
-        - { os: ubuntu-latest, php: 8.1, experimental: true}
+        - { os: ubuntu-latest, php: 8.1, experimental: false}
+        - { os: ubuntu-latest, php: 8.2, packages: symfony/symfony=6.*, experimental: true}
         - { os: ubuntu-latest, php: 7.1, packages: symfony/symfony=3.4.*, experimental: false}
         - { os: ubuntu-latest, php: 7.1, packages: symfony/symfony=4.0.*, experimental: false}
         - { os: ubuntu-latest, php: 8.0, packages: symfony/symfony=4.*, experimental: false}
