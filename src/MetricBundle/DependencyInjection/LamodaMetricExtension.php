@@ -14,6 +14,7 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Definition;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\HttpKernel\DependencyInjection\ConfigurableExtension;
+use Symfony\Component\HttpKernel\Kernel;
 
 final class LamodaMetricExtension extends ConfigurableExtension
 {
@@ -79,6 +80,10 @@ final class LamodaMetricExtension extends ConfigurableExtension
     private function processResponders(ContainerBuilder $container, array $config): void
     {
         $routerLoader = $container->getDefinition('lamoda_metrics.route_loader');
+        $separator = ':';
+        if (Kernel::VERSION_ID >= 40100) {
+            $separator = '::';
+        }
 
         foreach ($config as $name => $responderConfig) {
             if (!$responderConfig['enabled']) {
@@ -102,7 +107,8 @@ final class LamodaMetricExtension extends ConfigurableExtension
             $controller->setArguments([$psrController]);
 
             $path = $responderConfig['path'] ?? '/' . $name;
-            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId . ':createResponse']);
+
+            $routerLoader->addMethodCall('registerController', [$name, $path, $controllerId . $separator . 'createResponse']);
         }
     }
 }
