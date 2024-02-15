@@ -6,3 +6,4 @@ vendor/
 build/
 target/
 .php_cs.cache
+.idea/

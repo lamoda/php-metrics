@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Client;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Filesystem\Filesystem;
+use Symfony\Component\HttpKernel\KernelInterface;
 
 abstract class AbstractMetricBundleTest extends WebTestCase
 {
@@ -33,7 +34,7 @@ abstract class AbstractMetricBundleTest extends WebTestCase
         return static::$em;
     }
 
-    protected static function createKernel(array $options = [])
+    protected static function createKernel(array $options = []): KernelInterface
     {
         $kernel = parent::createKernel($options);
         $fs = new Filesystem();
