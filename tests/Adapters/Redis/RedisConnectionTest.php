@@ -51,7 +51,7 @@ final class RedisConnectionTest extends TestCase
             ->expects($this->once())
             ->method('hincrbyfloat')
             ->with(self::METRICS_KEY, $expectedField, $value)
-            ->willReturn(17);
+            ->willReturn(17.0);
 
         $actual = $this->redisConnection->adjustMetric('test', $value, ['severity' => 'high']);
         self::assertEquals(17, $actual);

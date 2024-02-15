@@ -18,9 +18,9 @@ use Lamoda\Metric\MetricBundle\Tests\Fixtures\Entity\Metric;
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source
  * @runTestsInSeparateProcesses
  */
-final class MetricRespondingTest extends AbstractMetricBundleTest
+final class MetricRespondingTest extends AbstractMetricBundleTestClass
 {
-    public function getTelegrafTestRoutes(): array
+    public static function getTelegrafTestRoutes(): array
     {
         return [
             'basic' => ['/metrics/telegraf_json'],
