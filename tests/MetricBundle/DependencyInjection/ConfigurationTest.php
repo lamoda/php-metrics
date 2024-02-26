@@ -11,7 +11,7 @@ use Symfony\Component\Yaml\Yaml;
  */
 final class ConfigurationTest extends TestCase
 {
-    public function getSamples(): array
+    public static function getSamples(): array
     {
         $files = glob(__DIR__ . '/valid_config_samples/*.yml');
 

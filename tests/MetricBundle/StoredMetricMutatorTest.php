@@ -18,7 +18,7 @@ use Lamoda\Metric\Storage\MetricStorageInterface;
  * @covers \Lamoda\Metric\MetricBundle\DependencyInjection\DefinitionFactory\Source
  * @runTestsInSeparateProcesses
  */
-final class StoredMetricMutatorTest extends AbstractMetricBundleTest
+final class StoredMetricMutatorTest extends AbstractMetricBundleTestClass
 {
     public function testAdjustableMetrics(): void
     {
