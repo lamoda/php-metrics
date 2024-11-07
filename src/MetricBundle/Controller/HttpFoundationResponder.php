@@ -39,7 +39,7 @@ final class HttpFoundationResponder
                 $response->getHeaders()
             );
         } catch (\Exception $exception) {
-            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, null, $exception);
+            throw new HttpException(Response::HTTP_INTERNAL_SERVER_ERROR, '', $exception);
         }
 
         $symfonyResponse->setPrivate();
