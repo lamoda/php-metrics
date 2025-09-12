@@ -84,6 +84,15 @@ abstract class AbstractRedisStorage implements \IteratorAggregate, MetricStorage
         $this->redisConnection->setMetrics([new MetricDto($name, $value, $tags)]);
     }
 
+    /**
+     * @param HistogramMetricDto $metricDto
+     * @return void
+     */
+    final public function adjustHistogramMetric(HistogramMetricDto $metricDto): void
+    {
+        $this->redisConnection->adjustHistogramMetric($metricDto);
+    }
+
     /** {@inheritdoc} */
     final public function adjustMetricValue(string $name, float $value, array $tags = []): float
     {

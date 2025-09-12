@@ -3,6 +3,7 @@
 namespace Lamoda\Metric\Responder\ResponseFactory;
 
 use GuzzleHttp\Psr7\Response;
+use Lamoda\Metric\Common\MetricInterface;
 use Lamoda\Metric\Common\MetricSourceInterface;
 use Lamoda\Metric\Responder\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -29,19 +30,124 @@ final class PrometheusResponseFactory implements ResponseFactoryInterface
     public function create(MetricSourceInterface $source, array $options = []): ResponseInterface
     {
         $data = [];
+        $histogramMetricsData = [];
+
         foreach ($source->getMetrics() as $metric) {
+            $tags = $metric->getTags();
+
+            if (isset($tags['_meta']) && ($tags['_meta']['type'] ?? '') === 'histogram') {
+                $histogramMetricsData = $this->prepareHistogramMetric($metric, $histogramMetricsData);
+                continue;
+            }
+
             $data[] = [
                 'name' => ($options['prefix'] ?? '') . $metric->getName(),
                 'value' => $metric->resolve(),
-                'tags' => $metric->getTags(),
+                'tags' => $tags,
             ];
         }
+        
+        $histogramData = $this->calculateHistogramMetric($histogramMetricsData);
 
         return new Response(
             200,
             ['Content-Type' => self::CONTENT_TYPE],
-            $this->getContent($data)
+            $this->getContent(array_merge($data, $histogramData))
         );
+    }
+
+    private function buildHistogramMetricHash(MetricInterface $metric): string
+    {
+        return md5($metric->getName() . implode('', $this->clearTags($metric->getTags())));
+    }
+
+    /**
+     * @param array<string, string> $tags
+     * @return array<string, string>
+     */
+    private function clearTags(array $tags): array
+    {
+        if (isset($tags['_meta'])) {
+            unset($tags['_meta']);
+        }
+
+        if (isset($tags['le'])) {
+            unset($tags['le']);
+        }
+
+        return $tags;
+    }
+
+    /**
+     * @param array<string, array<string, mixed>> $preparedHistogramMetricsData
+     * @return array<string, array<string, mixed>>
+     */
+    private function prepareHistogramMetric(MetricInterface $metric, array $preparedHistogramMetricsData): array
+    {
+        $tags = $metric->getTags();
+        $metaTags = $tags['_meta'] ?? null;
+        $le = $tags['le'] ?? null;
+        $tags = $this->clearTags($tags);
+        $keyMetric = $this->buildHistogramMetricHash($metric);
+
+        if (!isset($preparedHistogramMetricsData[$keyMetric])) {
+            $preparedHistogramMetricsData[$keyMetric] = [
+                'name' => $metric->getName(),
+                'buckets' => $metaTags['buckets'],
+                'tags' => $tags,
+                'data' => [],
+                'sum' => 0,
+            ];
+        }
+
+        if (isset($metaTags['is_sum'])) {
+            $preparedHistogramMetricsData[$keyMetric]['sum'] = $metric->resolve();
+        }
+
+        if($le !== null) {
+            $preparedHistogramMetricsData[$keyMetric]['data'][(string) $le] = $metric->resolve();
+        }
+
+        return $preparedHistogramMetricsData;
+    }
+
+    /**
+     * @return array<string, array<int, mixed>> $histogramMetricsData
+     * @return array<int, array<string, string>>
+     */
+    private function calculateHistogramMetric(array $histogramMetricsData): array
+    {
+        $data = [];
+        foreach ($histogramMetricsData as $histogramMetricData) {
+            $total = 0;
+
+            foreach ($histogramMetricData['buckets'] as $bucket) {
+                $value = $histogramMetricData['data'][(string)$bucket] ?? null;
+                $total += $value;
+
+                $data[] = [
+                    'name' => ($options['prefix'] ?? '') . $histogramMetricData['name'] . '_bucket',
+                    'value' => $total,
+                    'tags' => array_merge($histogramMetricData['tags'], ['le' => (string) $bucket])
+                ];
+            }
+
+            if (count($histogramMetricData['data']) > 0) {
+                $data[] = [
+                    'name' => ($options['prefix'] ?? '') . $histogramMetricData['name'] . '_sum',
+                    'value' => $histogramMetricData['sum'],
+                    'tags' => $histogramMetricData['tags'],
+                ];
+
+                $data[] = [
+                    'name' => ($options['prefix'] ?? '') . $histogramMetricData['name'] . '_count',
+                    'value' => $total,
+                    'tags' => $histogramMetricData['tags'],
+                ];
+            }
+        }
+
+        return $data;
     }
 
     /**
