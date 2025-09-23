@@ -33,8 +33,9 @@ metrics_orders{country="ru"} 200
 metrics_errors{country="ru"} 0
 untagged_metric 5
 histogram_metric_bucket{country="ru",le="0.1"} 0
-histogram_metric_bucket{country="ru",le="0.5"} 
+histogram_metric_bucket{country="ru",le="0.5"} 1
 histogram_metric_bucket{country="ru",le="0.9"} 1
+histogram_metric_bucket{country="ru",le="+Inf"} 1
 histogram_metric_sum{country="ru"} 0.5
 histogram_metric_count{country="ru"} 1
 
