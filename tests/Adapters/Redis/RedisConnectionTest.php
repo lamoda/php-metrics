@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Adapters\Redis;
 
+use Lamoda\Metric\Adapters\Redis\HistogramMetricDto;
 use Lamoda\Metric\Adapters\Redis\MetricDto;
 use Lamoda\Metric\Adapters\Redis\RedisConnection;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -55,6 +56,36 @@ final class RedisConnectionTest extends TestCase
 
         $actual = $this->redisConnection->adjustMetric('test', $value, ['severity' => 'high']);
         self::assertEquals(17, $actual);
+    }
+
+    public function testAdjustHistogramMetric(): void
+    {
+        $value = 1.5;
+        $this->redis
+            ->expects($this->once())
+            ->method('hincrbyfloat')
+            ->with(
+                self::METRICS_KEY,
+                '{"name":"test","tags":"{\"_meta\":{\"type\":\"histogram\",\"buckets\":[1,2,3],\"is_sum\":true},\"severity\":\"high\"}"}',
+                $value
+            );
+
+        $this->redis
+            ->expects($this->once())
+            ->method('hincrby')
+            ->with(
+                self::METRICS_KEY,
+                '{"name":"test","tags":"{\"_meta\":{\"type\":\"histogram\",\"buckets\":[1,2,3]},\"le\":\"2\",\"severity\":\"high\"}"}',
+                1
+            );
+
+        $this->redis
+            ->expects($this->once())
+            ->method('exec')
+            ->willReturn([$value, 1]);
+
+        $actual = $this->redisConnection->adjustHistogramMetric(new HistogramMetricDto('test', $value, [1, 2, 3], ['severity' => 'high']));
+        self::assertEquals($value, $actual);
     }
 
     public function testSetMetrics(): void

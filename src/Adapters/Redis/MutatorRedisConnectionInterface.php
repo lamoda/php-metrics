@@ -12,4 +12,10 @@ interface MutatorRedisConnectionInterface
      * @param MetricDto[] $metricsData
      */
     public function setMetrics(array $metricsData): void;
+
+    /**
+     * @param HistogramMetricDto $metricDto
+     * @return float
+     */
+    public function adjustHistogramMetric(HistogramMetricDto $metricDto): float;
 }

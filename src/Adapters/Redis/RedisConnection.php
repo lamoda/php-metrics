@@ -59,6 +59,17 @@ final class RedisConnection implements RedisConnectionInterface
     }
 
     /** {@inheritdoc} */
+    public function adjustHistogramMetric(HistogramMetricDto $metricDto): float
+    {
+        $this->client->multi();
+        $this->client->hincrbyfloat($this->metricsKey, $this->buildHistogramFieldForSum($metricDto), $metricDto->value);
+        $this->client->hincrby($this->metricsKey, $this->buildHistogramFieldForValue($metricDto), 1);
+        $result = $this->client->exec();
+
+        return (float) ($result[0] ?? null);
+    }
+
+    /** {@inheritdoc} */
     public function getMetricValue(string $key, array $tags): ?float
     {
         $value = $this->client->hget($this->metricsKey, $this->buildField($key, $tags));
@@ -74,6 +85,48 @@ final class RedisConnection implements RedisConnectionInterface
         return json_encode([
             'name' => $name,
             'tags' => $this->convertTagsForStorage($tags),
+        ]);
+    }
+
+    /**
+     * @param HistogramMetricDto $histogramMetricDto
+     * @return string
+     */
+    private function buildHistogramFieldForValue(HistogramMetricDto $histogramMetricDto): string
+    {
+        return json_encode([
+            'name' => $histogramMetricDto->name,
+            'tags' => $this->convertTagsForStorage(array_merge(
+                $histogramMetricDto->tags, 
+                [
+                    'le' => $histogramMetricDto->le,
+                    '_meta' => [
+                        'type' => 'histogram',
+                        'buckets' => $histogramMetricDto->buckets
+                    ]
+                ]
+            ))
+        ]);
+    }
+
+    /**
+     * @param HistogramMetricDto $histogramMetricDto
+     * @return string
+     */
+    private function buildHistogramFieldForSum(HistogramMetricDto $histogramMetricDto): string
+    {
+        return json_encode([
+            'name' => $histogramMetricDto->name,
+            'tags' => $this->convertTagsForStorage(array_merge(
+                $histogramMetricDto->tags,
+                [
+                    '_meta' => [
+                        'type' => 'histogram',
+                        'buckets' => $histogramMetricDto->buckets,
+                        'is_sum' => true
+                    ]
+                ]
+            ))
         ]);
     }
 
